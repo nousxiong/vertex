@@ -1,15 +1,27 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.FileInputStream
+import java.util.*
 
 plugins {
 	id("org.springframework.boot") version "3.1.0"
 	id("io.spring.dependency-management") version "1.1.0"
 	kotlin("jvm") version "1.8.21"
 	kotlin("plugin.spring") version "1.8.21"
+	id("maven-publish")
 }
 
 group = "io.vertex"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
+
+val vertxVersion: String by project
+
+val localProperties = Properties().apply {
+	load(FileInputStream(File(rootProject.rootDir, "local.properties")))
+}
+val codingArtifactsRepoUrl = localProperties["codingArtifactsRepoUrl"] as String
+val codingArtifactsUsername = localProperties["codingArtifactsUsername"] as String
+val codingArtifactsPassword = localProperties["codingArtifactsPassword"] as String
 
 configurations {
 	compileOnly {
@@ -17,7 +29,40 @@ configurations {
 	}
 }
 
+// 设置源代码jar任务，为之后的发布jar做准备
+val sourcesJar by tasks.registering(Jar::class) {
+	dependsOn(tasks.getByName("classes"))
+	from(sourceSets["main"].allSource)
+	archiveClassifier.set("sources")
+}
+
+// 发布项目jar到coding仓库
+publishing {
+	repositories {
+		maven {
+			url = uri(codingArtifactsRepoUrl)
+			credentials {
+				username = codingArtifactsUsername
+				password = codingArtifactsPassword
+			}
+		}
+	}
+	publications {
+		create<MavenPublication>("maven") {
+			from(components["java"])
+			artifact(sourcesJar)
+		}
+	}
+}
+
 repositories {
+	maven {
+		url = uri(codingArtifactsRepoUrl)
+		credentials {
+			username = codingArtifactsUsername
+			password = codingArtifactsPassword
+		}
+	}
 	mavenCentral()
 }
 
@@ -39,6 +84,19 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
+tasks.withType<JavaCompile> {
+	options.encoding = "UTF-8"
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
+
+	// 为了去掉仅执行部分测试而报的警告：tests were Method or class mismatch
+	// 方案见：https://stackoverflow.com/questions/66586272/running-a-single-junit5-test-on-gradle-exits-with-standard-error
+	systemProperty("java.util.logging.config.file", "${project.buildDir}/resources/test/logging-test.properties")
+	setForkEvery(1)
+
+	testLogging {
+		showStandardStreams = true
+	}
 }
