@@ -14,6 +14,8 @@ group = "io.vertex"
 version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
+val vertxVersion: String by project
+
 val localProperties = Properties().apply {
 	load(FileInputStream(File(rootProject.rootDir, "local.properties")))
 }
@@ -68,8 +70,9 @@ repositories {
 }
 
 dependencies {
-	api("org.springframework.boot:spring-boot-starter")
-	api(project(":vertex-spring-boot"))
+	api(project(":vertex-spring-boot-starter"))
+	api("io.vertx:vertx-web:$vertxVersion")
+	api("io.vertx:vertx-web-client:$vertxVersion")
 }
 
 tasks.withType<KotlinCompile> {

@@ -5,6 +5,7 @@ import java.util.*
 plugins {
 	id("org.springframework.boot") version "3.1.0"
 	id("io.spring.dependency-management") version "1.1.0"
+	id("org.jetbrains.kotlin.kapt") version "1.8.21"
 	kotlin("jvm") version "1.8.21"
 	kotlin("plugin.spring") version "1.8.21"
 	id("maven-publish")
@@ -67,14 +68,26 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	implementation("org.springframework.boot:spring-boot-autoconfigure")
+	api("org.springframework.boot:spring-boot-starter-webflux") {
+		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
+	}
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+	api("io.vertx:vertx-core:${vertxVersion}")
+	api("io.vertx:vertx-lang-kotlin:${vertxVersion}")
+	api("io.vertx:vertx-lang-kotlin-coroutines:${vertxVersion}")
+	compileOnly("io.vertx:vertx-web:$vertxVersion")
+	compileOnly("io.vertx:vertx-web-client:$vertxVersion")
+	kapt("org.springframework.boot:spring-boot-autoconfigure-processor")
+	kapt("org.springframework.boot:spring-boot-configuration-processor")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
+	testImplementation("com.ninja-squad:springmockk:4.0.2")
+	testImplementation(kotlin("test"))
 }
 
 tasks.withType<KotlinCompile> {

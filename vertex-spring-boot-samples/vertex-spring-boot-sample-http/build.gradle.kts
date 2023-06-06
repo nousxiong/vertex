@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.FileInputStream
+import java.util.*
 
 plugins {
 	id("org.springframework.boot") version "3.1.0"
@@ -11,14 +13,27 @@ group = "io.vertex"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
+val localProperties = Properties().apply {
+	load(FileInputStream(File(rootProject.rootDir, "local.properties")))
+}
+val codingArtifactsRepoUrl = localProperties["codingArtifactsRepoUrl"] as String
+val codingArtifactsUsername = localProperties["codingArtifactsUsername"] as String
+val codingArtifactsPassword = localProperties["codingArtifactsPassword"] as String
+
 repositories {
+	maven {
+		url = uri(codingArtifactsRepoUrl)
+		credentials {
+			username = codingArtifactsUsername
+			password = codingArtifactsPassword
+		}
+	}
 	mavenCentral()
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
+	implementation(project(":vertex-spring-boot-starter"))
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.withType<KotlinCompile> {
@@ -28,6 +43,6 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
-tasks.withType<Test> {
-	useJUnitPlatform()
+tasks.withType<JavaCompile> {
+	options.encoding = "UTF-8"
 }
