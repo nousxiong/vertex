@@ -20,6 +20,6 @@ class VertexAutoConfiguration {
      */
     @Bean(destroyMethod = "")
     fun vertx(properties: VertxProperties): Vertx {
-        return Vertx.vertx(properties.toVertxOptions())
+        return Vertx.vertx(properties)
     }
 }

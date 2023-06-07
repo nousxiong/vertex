@@ -84,6 +84,7 @@ dependencies {
 	kapt("org.springframework.boot:spring-boot-autoconfigure-processor")
 	kapt("org.springframework.boot:spring-boot-configuration-processor")
 	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("com.ninja-squad:springmockk:4.0.2")

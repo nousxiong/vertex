@@ -1,4 +1,4 @@
-package io.vertex.sample.http
+package io.vertex.sample.web
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

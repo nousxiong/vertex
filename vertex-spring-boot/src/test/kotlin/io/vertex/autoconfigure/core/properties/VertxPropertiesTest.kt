@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 @SpringBootTest(
     classes = [VertexAutoConfiguration::class],
     properties = [
-        "vertx.event-loop-pool-size=2"
+        "vertex.event-loop-pool-size=2"
     ]
 )
 class VertxPropertiesTest {
@@ -23,8 +23,8 @@ class VertxPropertiesTest {
     private lateinit var properties: VertxProperties
 
     @Test
-    fun `should properties be`() {
-        logger.info("properties: ${properties.toVertxOptions()}")
+    fun `should injected properties`() {
+        logger.info("properties: $properties")
         assertEquals(2, properties.eventLoopPoolSize)
     }
 }
