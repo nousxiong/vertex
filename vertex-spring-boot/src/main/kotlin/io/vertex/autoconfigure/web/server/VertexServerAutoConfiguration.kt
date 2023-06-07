@@ -1,9 +1,11 @@
 package io.vertex.autoconfigure.web.server
 
+import io.vertex.autoconfigure.core.VertexAutoConfiguration
 import io.vertex.autoconfigure.web.server.properties.HttpServerProperties
 import io.vertex.autoconfigure.web.server.properties.ServerDeploymentProperties
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
+import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.AutoConfigureOrder
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -20,7 +22,7 @@ import java.util.function.Supplier
  * Created by xiongxl in 2023/6/7
  */
 @Configuration(proxyBeanMethods = false)
-@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
+@AutoConfigureAfter(VertexAutoConfiguration::class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass(ReactiveHttpInputMessage::class)
 @ConditionalOnMissingBean(ReactiveWebServerFactory::class)
