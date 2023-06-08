@@ -1,12 +1,11 @@
 package io.vertex.autoconfigure.web.server
 
 import io.vertex.autoconfigure.core.VertexAutoConfiguration
+import io.vertex.autoconfigure.web.server.properties.HttpServerOptionsCustomizer
 import io.vertex.autoconfigure.web.server.properties.HttpServerProperties
 import io.vertex.autoconfigure.web.server.properties.ServerDeploymentProperties
-import io.vertx.core.Verticle
 import io.vertx.core.Vertx
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
-import org.springframework.boot.autoconfigure.AutoConfigureOrder
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
@@ -14,7 +13,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.Ordered
 import org.springframework.http.ReactiveHttpInputMessage
 import java.util.function.Supplier
 
@@ -34,7 +32,7 @@ class VertexServerAutoConfiguration {
         vertx: Vertx,
         httpServerProperties: HttpServerProperties,
         serverDeploymentProperties: ServerDeploymentProperties,
-        verticleSupplier: Supplier<Verticle>,
+        verticleSupplier: Supplier<VertexServerVerticle>,
     ): VertexReactiveWebServerFactory {
         return VertexReactiveWebServerFactory(
             vertx,
@@ -45,8 +43,15 @@ class VertexServerAutoConfiguration {
     }
 
     @Bean
+    fun vertexWebServerFactoryCustomizer(
+        userDefinedCustomizers: Set<HttpServerOptionsCustomizer>?
+    ): VertexReactiveWebServerFactoryCustomizer? {
+        return VertexReactiveWebServerFactoryCustomizer(userDefinedCustomizers)
+    }
+
+    @Bean
     @ConditionalOnMissingBean
-    fun vertexServerVerticleSupplier(httpServerProperties: HttpServerProperties): Supplier<Verticle> {
+    fun vertexServerVerticleSupplier(httpServerProperties: HttpServerProperties): Supplier<VertexServerVerticle> {
         return Supplier { VertexServerVerticle(httpServerProperties) }
     }
 }
