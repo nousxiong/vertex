@@ -1,8 +1,6 @@
 package io.vertex.autoconfigure.web.server
 
-import io.vertex.autoconfigure.web.server.properties.AddressCustomizer
-import io.vertex.autoconfigure.web.server.properties.HttpServerOptionsCustomizer
-import io.vertex.autoconfigure.web.server.properties.PortCustomizer
+import io.vertex.autoconfigure.web.server.properties.*
 import org.springframework.boot.web.server.WebServerFactoryCustomizer
 import org.springframework.core.Ordered
 
@@ -19,6 +17,8 @@ class VertexReactiveWebServerFactoryCustomizer(
     override fun customize(factory: VertexReactiveWebServerFactory) {
         factory.registerHttpServerOptionsCustomizer(PortCustomizer(factory))
         factory.registerHttpServerOptionsCustomizer(AddressCustomizer(factory))
+        factory.registerHttpServerOptionsCustomizer(SslCustomizer(factory))
+        factory.registerHttpServerOptionsCustomizer(CompressionCustomizer(factory))
 
         userDefinedCustomizers?.forEach(factory::registerHttpServerOptionsCustomizer)
     }
