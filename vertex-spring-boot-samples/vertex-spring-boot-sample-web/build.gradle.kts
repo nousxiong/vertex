@@ -9,8 +9,12 @@ plugins {
 	kotlin("plugin.spring") version "1.8.21"
 }
 
+val vertexSpringBootVersion: String by project
+val vertexWebSpringBootStarterVersion: String by project
+val vertxVersion: String by project
+
 group = "io.vertex"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 val localProperties = Properties().apply {
@@ -32,8 +36,13 @@ repositories {
 }
 
 dependencies {
-	implementation(project(":vertex-spring-boot-starter"))
+//	implementation(project(":vertex-web-spring-boot-starter"))
+//	implementation("io.vertex:vertex-web-spring-boot-starter:$vertexWebSpringBootStarterVersion")
+	implementation(project(":vertex-spring-boot"))
+//	implementation("io.vertex:vertex-spring-boot:$vertexSpringBootVersion")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	api("io.vertx:vertx-web:$vertxVersion")
+	api("io.vertx:vertx-web-client:$vertxVersion")
 }
 
 tasks.withType<KotlinCompile> {

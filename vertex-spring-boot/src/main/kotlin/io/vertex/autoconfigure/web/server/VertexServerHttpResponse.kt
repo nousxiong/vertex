@@ -1,8 +1,10 @@
 package io.vertex.autoconfigure.web.server
 
 import io.vertex.utils.BufferConverter
+import io.vertex.utils.CookieConverter
 import io.vertex.utils.WriteStreamSubscriber
 import io.vertx.core.AsyncResult
+import io.vertx.core.http.Cookie
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.ext.web.RoutingContext
 import org.reactivestreams.Publisher
@@ -11,18 +13,22 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatusCode
+import org.springframework.http.ResponseCookie
 import org.springframework.http.ZeroCopyHttpOutputMessage
 import org.springframework.http.server.reactive.AbstractServerHttpResponse
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.MonoSink
 import java.nio.file.Path
 import java.util.function.Consumer
+import java.util.function.Function
 
 /**
  * Created by xiongxl in 2023/6/11
  */
 class VertexServerHttpResponse(
-    private val context: RoutingContext,
+    context: RoutingContext,
     private val bufferConverter: BufferConverter,
 ) : AbstractServerHttpResponse(
     bufferConverter.dataBufferFactory,
@@ -67,19 +73,37 @@ class VertexServerHttpResponse(
     }
 
     override fun writeAndFlushWithInternal(body: Publisher<out Publisher<out DataBuffer>>): Mono<Void> {
-        TODO("Not yet implemented")
+        return writeWithInternal(Flux.from(body).flatMap(Function.identity()))
     }
 
     override fun applyStatusCode() {
-        TODO("Not yet implemented")
+        val statusCode: HttpStatusCode? = statusCode
+        if (statusCode != null) {
+            delegate.setStatusCode(statusCode.value())
+        }
     }
 
     override fun applyHeaders() {
-        TODO("Not yet implemented")
+        val headers = headers
+        if (!headers.containsKey(HttpHeaders.CONTENT_LENGTH)) {
+            logger.debug("Setting chunked response")
+            delegate.setChunked(true)
+        }
+        headers.forEach { name: String, values: List<String> ->
+            delegate.putHeader(
+                name,
+                values
+            )
+        }
     }
 
     override fun applyCookies() {
-        TODO("Not yet implemented")
+        cookies
+            .values
+            .stream()
+            .flatMap { obj: List<ResponseCookie> -> obj.stream() }
+            .map(CookieConverter::toCookie)
+            .forEach { cookie: Cookie -> delegate.addCookie(cookie) }
     }
 
     companion object {

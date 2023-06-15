@@ -10,11 +10,13 @@ plugins {
 	id("maven-publish")
 }
 
-group = "io.vertex"
-version = "0.0.1"
-java.sourceCompatibility = JavaVersion.VERSION_17
-
+val vertexSpringBootStarterVersion: String by project
+val vertexWebSpringBootStarterVersion: String by project
 val vertxVersion: String by project
+
+group = "io.vertex"
+version = vertexWebSpringBootStarterVersion
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 val localProperties = Properties().apply {
 	load(FileInputStream(File(rootProject.rootDir, "local.properties")))
@@ -58,21 +60,15 @@ repositories {
 	mavenCentral()
 }
 
-repositories {
-	maven {
-		url = uri(codingArtifactsRepoUrl)
-		credentials {
-			username = codingArtifactsUsername
-			password = codingArtifactsPassword
-		}
-	}
-	mavenCentral()
-}
-
 dependencies {
-	api(project(":vertex-spring-boot-starter"))
+//	api(project(":vertex-spring-boot-starter"))
+	api("io.vertex:vertex-spring-boot-starter:$vertexSpringBootStarterVersion")
 	api("io.vertx:vertx-web:$vertxVersion")
 	api("io.vertx:vertx-web-client:$vertxVersion")
+}
+
+tasks.getByName<Jar>("jar") {
+	archiveClassifier.set("")
 }
 
 tasks.withType<KotlinCompile> {

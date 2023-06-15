@@ -11,11 +11,12 @@ plugins {
 	id("maven-publish")
 }
 
-group = "io.vertex"
-version = "0.0.1"
-java.sourceCompatibility = JavaVersion.VERSION_17
-
+val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
+
+group = "io.vertex"
+version = vertexSpringBootVersion
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 val localProperties = Properties().apply {
 	load(FileInputStream(File(rootProject.rootDir, "local.properties")))
@@ -29,6 +30,7 @@ configurations {
 		extendsFrom(configurations.annotationProcessor.get())
 	}
 }
+
 
 // 设置源代码jar任务，为之后的发布jar做准备
 val sourcesJar by tasks.registering(Jar::class) {
@@ -89,6 +91,10 @@ dependencies {
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("com.ninja-squad:springmockk:4.0.2")
 	testImplementation(kotlin("test"))
+}
+
+tasks.getByName<Jar>("jar") {
+	archiveClassifier.set("")
 }
 
 tasks.withType<KotlinCompile> {
