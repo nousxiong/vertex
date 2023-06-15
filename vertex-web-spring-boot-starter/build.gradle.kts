@@ -61,8 +61,8 @@ repositories {
 }
 
 dependencies {
-//	api(project(":vertex-spring-boot-starter"))
-	api("io.vertex:vertex-spring-boot-starter:$vertexSpringBootStarterVersion")
+	api(project(":vertex-spring-boot-starter"))
+//	api("io.vertex:vertex-spring-boot-starter:$vertexSpringBootStarterVersion")
 	api("io.vertx:vertx-web:$vertxVersion")
 	api("io.vertx:vertx-web-client:$vertxVersion")
 }

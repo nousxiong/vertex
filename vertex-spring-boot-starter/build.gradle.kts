@@ -61,8 +61,8 @@ repositories {
 
 dependencies {
 	api("org.springframework.boot:spring-boot-starter")
-//	api(project(":vertex-spring-boot"))
-	api("io.vertex:vertex-spring-boot:$vertexSpringBootVersion")
+	api(project(":vertex-spring-boot"))
+//	api("io.vertex:vertex-spring-boot:$vertexSpringBootVersion")
 }
 
 tasks.getByName<Jar>("jar") {

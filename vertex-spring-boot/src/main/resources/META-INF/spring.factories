@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.vertex.autoconfigure.core.VertexAutoConfiguration,\
-io.vertex.autoconfigure.web.server.VertexServerAutoConfiguration
