@@ -1,4 +1,4 @@
-package io.vertex.utils
+package io.vertex.autoconfigure.common
 
 import io.vertx.core.streams.ReadStream
 import org.slf4j.Logger

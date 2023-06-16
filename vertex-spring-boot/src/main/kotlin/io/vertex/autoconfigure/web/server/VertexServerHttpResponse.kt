@@ -2,7 +2,7 @@ package io.vertex.autoconfigure.web.server
 
 import io.vertex.utils.BufferConverter
 import io.vertex.utils.CookieConverter
-import io.vertex.utils.WriteStreamSubscriber
+import io.vertex.autoconfigure.common.WriteStreamSubscriber
 import io.vertx.core.AsyncResult
 import io.vertx.core.http.Cookie
 import io.vertx.core.http.HttpServerResponse
