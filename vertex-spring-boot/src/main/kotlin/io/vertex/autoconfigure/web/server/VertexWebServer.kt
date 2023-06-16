@@ -52,7 +52,7 @@ class VertexWebServer(
             logger.info("Vertex HTTP server verticle deploying with ${deploymentsOptions.instances} instances")
             vertx.deployVerticle({
                 val verticle = verticleFactory.create(httpServerOptions, requestHandler, gracefulShutdown)
-                verticles[verticle.id] = verticle
+                verticles[verticle.index] = verticle
                 verticle
             }, deploymentsOptions).onComplete { ar: AsyncResult<String> ->
                 if (ar.succeeded()) {

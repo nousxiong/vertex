@@ -18,10 +18,16 @@ open class VertexServerVerticle(
     private val gracefulShutdown: GracefulShutdown?,
 ) : CoroutineVerticle() {
     companion object {
-        private val idr = AtomicInteger(0)
-        const val CONTEXT_ID = "vertex.contextId"
+        private val indexer = AtomicInteger(0)
+        const val VERTICLE_INDEX = "vertex.verticle.index"
+        const val VERTICLE_ID = "vertex.verticle.id"
+        fun getIndex(): Int = Vertx.currentContext().get(VERTICLE_INDEX)
+        fun getIndexOrNull(): Int? = Vertx.currentContext()?.get(VERTICLE_INDEX)
+        fun getId(): String = Vertx.currentContext().get(VERTICLE_ID)
+        fun getIdOrNull(): String? = Vertx.currentContext()?.get(VERTICLE_ID)
     }
-    val id = idr.getAndIncrement()
+    val index = indexer.getAndIncrement()
+    val id by lazy { "${this::class.simpleName}[$index]" }
     var port = 0
         private set
 
@@ -32,7 +38,8 @@ open class VertexServerVerticle(
         val server = vertx.createHttpServer(httpServerOptions).requestHandler(router).listen().await()
         port = server.actualPort()
         val ctx = Vertx.currentContext()
-        ctx.put(CONTEXT_ID, id)
+        ctx.put(VERTICLE_INDEX, index)
+        ctx.put(VERTICLE_ID, id)
     }
 
     override suspend fun stop() {

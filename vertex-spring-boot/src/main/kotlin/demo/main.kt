@@ -1,21 +1,15 @@
 package demo
 
-import io.vertex.autoconfigure.web.server.VertexRequestUpgradeStrategy
 import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.await
-import kotlinx.coroutines.delay
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.reactive.socket.server.WebSocketService
-import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService
-import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 
 
 /**
@@ -41,10 +35,10 @@ class VertexApplication(private val vertx: Vertx) {
 
     @GetMapping("/hello")
     suspend fun hello(): String {
-        logger.info("vertex ctx=${Vertx.currentContext().get<Int>(VertexServerVerticle.CONTEXT_ID)}")
+        logger.info("vertex ctx=${Vertx.currentContext().get<Int>(VertexServerVerticle.VERTICLE_INDEX)}")
 //        delay(100L)
         logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
-        logger.info("vertex ctx=${Vertx.currentContext().get<Int>(VertexServerVerticle.CONTEXT_ID)}")
+        logger.info("vertex ctx=${Vertx.currentContext().get<Int>(VertexServerVerticle.VERTICLE_INDEX)}")
         return "Hello, World!"
     }
 

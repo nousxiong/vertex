@@ -74,7 +74,7 @@ dependencies {
 	api("org.springframework.boot:spring-boot-starter-webflux") {
 		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
 	}
-	implementation("jakarta.websocket:jakarta.websocket-api:2.0.0")
+//	implementation("jakarta.websocket:jakarta.websocket-api:2.0.0")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")

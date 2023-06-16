@@ -45,7 +45,7 @@ class GracefulShutdown(
         require(minRemainJob >= 0)
         require(periodMillis > 0L)
         val job = verticle.coroutineContext.job as CompletableJob
-        shutDownResults[verticle.id] = 1
+        shutDownResults[verticle.index] = 1
         if (job.isCompleted) return true
 
         val clock = Clock.tickMillis(ZoneId.systemDefault())
@@ -57,7 +57,7 @@ class GracefulShutdown(
             }
             delay(periodMillis)
         }
-        shutDownResults[verticle.id] = 1
+        shutDownResults[verticle.index] = 1
         return true
     }
 }
