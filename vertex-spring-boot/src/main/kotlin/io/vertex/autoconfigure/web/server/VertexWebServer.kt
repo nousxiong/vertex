@@ -53,6 +53,7 @@ class VertexWebServer(
             vertx.deployVerticle({
                 val verticle = verticleFactory.create(httpServerOptions, requestHandler, gracefulShutdown)
                 verticles[verticle.index] = verticle
+                logger.info("Vertex HTTP ${verticle.id} deployed")
                 verticle
             }, deploymentsOptions).onComplete { ar: AsyncResult<String> ->
                 if (ar.succeeded()) {
