@@ -7,15 +7,15 @@ import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.ext.web.RoutingContext
-import org.springframework.boot.autoconfigure.AutoConfigureOrder
+import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
+import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.Ordered
 import org.springframework.http.ReactiveHttpInputMessage
 import org.springframework.web.reactive.config.WebFluxConfigurationSupport
 import org.springframework.web.reactive.socket.server.WebSocketService
@@ -25,8 +25,8 @@ import org.springframework.web.reactive.socket.server.support.HandshakeWebSocket
  * Created by xiongxl in 2023/6/7
  */
 @Configuration
-@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
-//@AutoConfigureBefore(WebFluxAutoConfiguration::class)
+//@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
+@AutoConfigureBefore(WebFluxAutoConfiguration::class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass(ReactiveHttpInputMessage::class)
 @ConditionalOnMissingBean(ReactiveWebServerFactory::class)
@@ -70,20 +70,20 @@ class VertexServerAutoConfiguration : WebFluxConfigurationSupport() {
     }
 
 //    @Bean
-    private fun webSocketService(properties: HttpServerProperties): WebSocketService {
-        val requestUpgradeStrategy = VertexRequestUpgradeStrategy(
-            properties.maxWebSocketFrameSize, properties.maxWebSocketMessageSize
-        )
-        return HandshakeWebSocketService(requestUpgradeStrategy)
-    }
-
+//    fun webSocketService(properties: HttpServerProperties): WebSocketService {
+//        val requestUpgradeStrategy = VertexRequestUpgradeStrategy(
+//            properties.maxWebSocketFrameSize, properties.maxWebSocketMessageSize
+//        )
+//        return HandshakeWebSocketService(requestUpgradeStrategy)
+//    }
+//
 //    @Bean
 //    fun webSocketHandlerAdapter(webSocketService: WebSocketService): WebSocketHandlerAdapter {
 //        return WebSocketHandlerAdapter(webSocketService)
 //    }
 
     override fun getWebSocketService(): WebSocketService? {
-        val properties = applicationContext!!.getBean(HttpServerProperties::class.java)
+        val properties = applicationContext?.getBean(HttpServerProperties::class.java) ?: return null
         val requestUpgradeStrategy = VertexRequestUpgradeStrategy(
             properties.maxWebSocketFrameSize, properties.maxWebSocketMessageSize
         )

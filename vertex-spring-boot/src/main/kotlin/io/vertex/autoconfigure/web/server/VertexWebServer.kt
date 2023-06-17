@@ -38,15 +38,13 @@ class VertexWebServer(
         null
     }
     private var deploymentId = ""
-    private var status = false
     private var undeployed = false
     private val verticles = AtomicReferenceArray<VertexServerVerticle>(deploymentsOptions.instances)
 
     override fun start() {
-        if (status) {
+        if (deploymentId.isNotEmpty()) {
             return
         }
-        status = true
 
         Mono.create { sink: MonoSink<Void?> ->
             logger.info("Vertex HTTP server verticle deploying with ${deploymentsOptions.instances} instances")
@@ -68,10 +66,9 @@ class VertexWebServer(
     }
 
     override fun stop() {
-        if (!status) {
+        if (deploymentId.isEmpty()) {
             return
         }
-        status = false
 
         if (undeployed) {
             return
