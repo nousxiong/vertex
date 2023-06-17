@@ -25,7 +25,6 @@ import org.springframework.web.reactive.socket.server.support.HandshakeWebSocket
  * Created by xiongxl in 2023/6/7
  */
 @Configuration
-//@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @AutoConfigureBefore(WebFluxAutoConfiguration::class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass(ReactiveHttpInputMessage::class)
@@ -69,19 +68,13 @@ class VertexServerAutoConfiguration : WebFluxConfigurationSupport() {
         }
     }
 
-//    @Bean
-//    fun webSocketService(properties: HttpServerProperties): WebSocketService {
-//        val requestUpgradeStrategy = VertexRequestUpgradeStrategy(
-//            properties.maxWebSocketFrameSize, properties.maxWebSocketMessageSize
-//        )
-//        return HandshakeWebSocketService(requestUpgradeStrategy)
-//    }
-//
-//    @Bean
-//    fun webSocketHandlerAdapter(webSocketService: WebSocketService): WebSocketHandlerAdapter {
-//        return WebSocketHandlerAdapter(webSocketService)
-//    }
-
+    /**
+     * 选择重载getWebSocketService方法，而非提供对应的bean，是因为：
+     *  报Error creating bean with name 'webFluxWebSocketHandlerAdapter'，
+     *      springboot是2.7.2时不依赖jakarta.websocket:jakarta.websocket-api，
+     *      而springboot-3.1.0需要（可能从某个版本就开始）；
+     *  另外：webFluxWebSocketHandlerAdapter这个bean无论是否用户提供了自己的bean，都会创建
+     */
     override fun getWebSocketService(): WebSocketService? {
         val properties = applicationContext?.getBean(HttpServerProperties::class.java) ?: return null
         val requestUpgradeStrategy = VertexRequestUpgradeStrategy(
@@ -89,10 +82,4 @@ class VertexServerAutoConfiguration : WebFluxConfigurationSupport() {
         )
         return HandshakeWebSocketService(requestUpgradeStrategy)
     }
-
-//    override fun webFluxWebSocketHandlerAdapter(): WebSocketHandlerAdapter {
-//        val appCtx = applicationContext!!
-//        val properties = appCtx.getBean(HttpServerProperties::class.java)
-//        return WebSocketHandlerAdapter(webSocketService(properties))
-//    }
 }
