@@ -5,7 +5,7 @@ import java.util.*
 plugins {
 	id("org.springframework.boot") version "3.1.0"
 	id("io.spring.dependency-management") version "1.1.0"
-	id("org.jetbrains.kotlin.kapt") version "1.8.21"
+	id("org.jetbrains.kotlin.kapt") version "1.8.22"
 	kotlin("jvm") version "1.8.22"
 	kotlin("plugin.spring") version "1.8.22"
 	id("maven-publish")
@@ -74,10 +74,11 @@ dependencies {
 	api("org.springframework.boot:spring-boot-starter-webflux") {
 		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
 	}
-//	implementation("jakarta.websocket:jakarta.websocket-api:2.0.0")
+//	api("jakarta.websocket:jakarta.websocket-api:2.0.0")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	api("io.vertx:vertx-core:${vertxVersion}")
 	api("io.vertx:vertx-lang-kotlin:${vertxVersion}")

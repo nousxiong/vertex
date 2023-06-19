@@ -11,10 +11,9 @@ plugins {
 }
 
 val vertexSpringBootVersion: String by project
-val vertexSpringBootStarterVersion: String by project
 
 group = "io.vertex"
-version = vertexSpringBootStarterVersion
+version = vertexSpringBootVersion
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 val localProperties = Properties().apply {

@@ -7,6 +7,7 @@ import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.ext.web.RoutingContext
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -14,6 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.ReactiveHttpInputMessage
@@ -31,6 +33,8 @@ import org.springframework.web.reactive.socket.server.support.HandshakeWebSocket
 @ConditionalOnMissingBean(ReactiveWebServerFactory::class)
 @EnableConfigurationProperties(HttpServerProperties::class, ServerDeploymentProperties::class)
 class VertexServerAutoConfiguration : WebFluxConfigurationSupport() {
+    @Autowired
+    private var applicationContext: ApplicationContext? = null
 
     @Bean
     fun vertexReactiveWebServerFactory(
