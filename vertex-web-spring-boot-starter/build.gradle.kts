@@ -10,12 +10,11 @@ plugins {
 	id("maven-publish")
 }
 
-val vertexSpringBootStarterVersion: String by project
-val vertexWebSpringBootStarterVersion: String by project
+val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
 
 group = "io.vertex"
-version = vertexWebSpringBootStarterVersion
+version = vertexSpringBootVersion
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 val localProperties = Properties().apply {
@@ -62,7 +61,7 @@ repositories {
 
 dependencies {
 	api(project(":vertex-spring-boot-starter"))
-//	api("io.vertex:vertex-spring-boot-starter:$vertexSpringBootStarterVersion")
+//	api("io.vertex:vertex-spring-boot-starter:$vertexSpringBootVersion")
 	api("io.vertx:vertx-web:$vertxVersion")
 	api("io.vertx:vertx-web-client:$vertxVersion")
 }

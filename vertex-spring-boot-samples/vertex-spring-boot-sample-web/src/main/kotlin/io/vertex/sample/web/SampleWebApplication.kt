@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @SpringBootApplication
 @RestController
-class VertexSpringBootSampleWebApplication(private val vertx: Vertx) {
+class SampleWebApplication(private val vertx: Vertx) {
 	companion object {
-		val logger: Logger = LoggerFactory.getLogger(VertexSpringBootSampleWebApplication::class.java)
+		val logger: Logger = LoggerFactory.getLogger(SampleWebApplication::class.java)
 	}
 
 	private suspend fun getUrlSize(host: String, uri: String = "/"): Int {
@@ -62,10 +62,8 @@ class MyServerVerticle(
 	httpServerOptions: HttpServerOptions,
 	requestHandler: Handler<RoutingContext>,
 	gracefulShutdown: GracefulShutdown?,
-) : VertexServerVerticle(httpServerOptions, requestHandler, gracefulShutdown) {
-
-}
+) : VertexServerVerticle(httpServerOptions, requestHandler, gracefulShutdown)
 
 fun main(args: Array<String>) {
-	runApplication<VertexSpringBootSampleWebApplication>(*args)
+	runApplication<SampleWebApplication>(*args)
 }
