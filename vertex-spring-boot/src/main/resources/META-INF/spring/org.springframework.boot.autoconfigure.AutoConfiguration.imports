@@ -1,2 +1,3 @@
 io.vertex.autoconfigure.core.VertexAutoConfiguration
 io.vertex.autoconfigure.web.server.VertexServerAutoConfiguration
+io.vertex.autoconfigure.web.client.VertexClientAutoConfiguration

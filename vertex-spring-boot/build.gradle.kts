@@ -87,12 +87,16 @@ dependencies {
 	compileOnly("io.vertx:vertx-web-client:$vertxVersion")
 	kapt("org.springframework.boot:spring-boot-autoconfigure-processor")
 	kapt("org.springframework.boot:spring-boot-configuration-processor")
-	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+	testImplementation("org.junit.jupiter:junit-jupiter-api")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.projectreactor:reactor-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude(module = "mockito-core")
+	}
 	testImplementation("com.ninja-squad:springmockk:4.0.2")
+	testImplementation("io.projectreactor:reactor-test")
 	testImplementation(kotlin("test"))
+	testRuntimeOnly("io.vertx:vertx-web:$vertxVersion")
+	testRuntimeOnly("io.vertx:vertx-web-client:$vertxVersion")
 }
 
 tasks.getByName<Jar>("jar") {
