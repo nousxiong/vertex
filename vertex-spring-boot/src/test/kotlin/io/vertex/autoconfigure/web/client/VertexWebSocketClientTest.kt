@@ -10,11 +10,10 @@ import kotlinx.coroutines.reactor.asFlux
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.HandlerMapping
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
 import org.springframework.web.reactive.socket.WebSocketHandler
@@ -24,13 +23,15 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import java.net.URI
 import java.time.Duration
+import kotlin.test.assertEquals
 
 
 @SpringBootTest(classes = [ // 手动指定是为了精确控制；不指定的话，让springboot自己扫描也可以
     VertexAutoConfiguration::class,
     VertexServerAutoConfiguration::class,
     VertexClientAutoConfiguration::class,
-    VertexWebSocketClientTest.TestApplication::class, // 如果没有这个，auto-configure不生效，无法识别Reactive程序，从而报错
+    TestApplication::class, // 如果没有这个，auto-configure不生效，无法识别Reactive程序，从而报错
+    VertexWebSocketClientTest.TestConfiguration::class,
 ],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
@@ -44,9 +45,8 @@ class VertexWebSocketClientTest {
     @Autowired
     private lateinit var webSocketClient: VertexWebSocketClient
 
-    @RestController
-    @SpringBootApplication
-    class TestApplication {
+    @Configuration(proxyBeanMethods = false)
+    class TestConfiguration {
         @Bean
         fun handlerMapping(): HandlerMapping {
             val handlerMapping = SimpleUrlHandlerMapping(mapOf(ECHO_URL to WebSocketHandler {
@@ -74,8 +74,10 @@ class VertexWebSocketClientTest {
         webSocketClient.execute(URI("ws://localhost:$port$ECHO_URL")) { session ->
             session.send(session.textMessage("hello").toMono())
                 .then(session.receive().next().map { it.payloadAsText })
-                .doOnNext { logger.info(it) }
-//                .then()
+                .doOnNext {
+                    assertEquals("hello", it)
+                    logger.info(it)
+                }
                 .then(session.close())
         }.block(Duration.ofMillis(5000))
     }

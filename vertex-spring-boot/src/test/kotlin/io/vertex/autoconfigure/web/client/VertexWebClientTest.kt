@@ -6,12 +6,12 @@ import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.function.client.WebClient
+import kotlin.test.assertEquals
 
 /**
  * Created by xiongxl in 2023/6/22
@@ -20,7 +20,8 @@ import org.springframework.web.reactive.function.client.WebClient
     VertexAutoConfiguration::class,
     VertexServerAutoConfiguration::class,
     VertexClientAutoConfiguration::class,
-    VertexWebClientTest.TestApplication::class,
+    TestApplication::class,
+    VertexWebClientTest.TestController::class,
 ],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
@@ -35,8 +36,7 @@ class VertexWebClientTest {
     private lateinit var webClientBuilder: WebClient.Builder
 
     @RestController
-    @SpringBootApplication
-    class TestApplication {
+    class TestController {
         @GetMapping(URL)
         suspend fun hello(): String {
             logger.info("vertex ctx=${VertexServerVerticle.getIdOrNull()}")
@@ -45,9 +45,10 @@ class VertexWebClientTest {
     }
 
     @Test
-    fun `should return hello`() {
+    fun `should echo hello`() {
         val webClient = webClientBuilder.baseUrl("http://localhost:$port").build()
         webClient.get().uri(URL).retrieve().bodyToMono(String::class.java).doOnNext {
+            assertEquals("hello", it)
             logger.info(it)
         }.block()
     }
