@@ -40,6 +40,7 @@ dependencies {
 	implementation("jakarta.websocket:jakarta.websocket-api:2.0.0")
 //	implementation("io.vertex:vertex-web-spring-boot-starter:$vertexSpringBootVersion")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	testImplementation(project(":vertex-web-test-spring-boot-starter"))
 }
 
 tasks.withType<KotlinCompile> {
@@ -51,4 +52,17 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<JavaCompile> {
 	options.encoding = "UTF-8"
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
+
+	// 为了去掉仅执行部分测试而报的警告：tests were Method or class mismatch
+	// 方案见：https://stackoverflow.com/questions/66586272/running-a-single-junit5-test-on-gradle-exits-with-standard-error
+	systemProperty("java.util.logging.config.file", "${project.buildDir}/resources/test/logging-test.properties")
+	setForkEvery(1)
+
+	testLogging {
+		showStandardStreams = true
+	}
 }
