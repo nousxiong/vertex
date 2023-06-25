@@ -21,7 +21,7 @@ class VertexReactiveWebServerFactory(
     private val httpServerOptionsCustomizers = mutableListOf<HttpServerOptionsCustomizer>()
 
     override fun getWebServer(httpHandler: HttpHandler): WebServer {
-        val httpServerOptions = customizeHttpServerOptions(HttpServerOptions(httpServerProperties))
+        val httpServerOptions = customizeHttpServerOptions()
         val handler = VertexHttpHandlerAdapter(httpHandler)
         return VertexWebServer(
             vertx,
@@ -31,6 +31,10 @@ class VertexReactiveWebServerFactory(
             handler,
             shutdown
         )
+    }
+
+    fun customizeHttpServerOptions(): HttpServerOptions {
+        return customizeHttpServerOptions(HttpServerOptions(httpServerProperties))
     }
 
     fun registerHttpServerOptionsCustomizer(customizer: HttpServerOptionsCustomizer) {

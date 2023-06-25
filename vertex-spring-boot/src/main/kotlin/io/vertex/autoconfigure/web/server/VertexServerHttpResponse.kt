@@ -77,6 +77,7 @@ class VertexServerHttpResponse(
     }
 
     override fun applyStatusCode() {
+        if (delegate.headWritten()) return
         val statusCode: HttpStatusCode? = statusCode
         if (statusCode != null) {
             delegate.setStatusCode(statusCode.value())
@@ -84,6 +85,7 @@ class VertexServerHttpResponse(
     }
 
     override fun applyHeaders() {
+        if (delegate.headWritten()) return // 当websocket情况时，握手完成后就会设置headWritten=true，所以这里要判断
         val headers = headers
         if (!headers.containsKey(HttpHeaders.CONTENT_LENGTH)) {
             logger.debug("Setting chunked response")
@@ -98,6 +100,7 @@ class VertexServerHttpResponse(
     }
 
     override fun applyCookies() {
+        if (delegate.headWritten()) return
         cookies
             .values
             .stream()

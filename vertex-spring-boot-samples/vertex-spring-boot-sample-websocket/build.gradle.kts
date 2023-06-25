@@ -36,11 +36,10 @@ repositories {
 
 dependencies {
 	implementation(project(":vertex-web-spring-boot-starter"))
+//	implementation("io.vertex:vertex-web-spring-boot-starter:$vertexSpringBootVersion")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-//	implementation("jakarta.websocket:jakarta.websocket-api:2.0.0")
-//	implementation("io.vertex:vertex-web-spring-boot-starter:$vertexSpringBootVersion")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 }
 
