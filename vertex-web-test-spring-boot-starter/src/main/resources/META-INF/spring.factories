@@ -1,0 +1,2 @@
+org.springframework.test.context.ContextCustomizerFactory=\
+io.vertex.autoconfigure.web.test.VertexWebTestClientContextCustomizerFactory
