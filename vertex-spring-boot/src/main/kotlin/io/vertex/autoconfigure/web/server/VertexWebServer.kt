@@ -15,6 +15,7 @@ import org.springframework.boot.web.server.WebServer
 import reactor.core.publisher.Mono
 import reactor.core.publisher.MonoSink
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReferenceArray
 
 /**
@@ -39,6 +40,7 @@ class VertexWebServer(
     }
     private var deploymentId = ""
     private var undeployed = false
+    private val indexer = AtomicInteger(0)
     private val verticles = AtomicReferenceArray<VertexServerVerticle>(deploymentsOptions.instances)
 
     override fun start() {
@@ -49,7 +51,8 @@ class VertexWebServer(
         Mono.create { sink: MonoSink<Void?> ->
             logger.info("Vertex HTTP server verticle deploying with ${deploymentsOptions.instances} instances")
             vertx.deployVerticle({
-                val verticle = verticleFactory.create(httpServerOptions, requestHandler, gracefulShutdown)
+                val index = indexer.getAndIncrement()
+                val verticle = verticleFactory.create(index, httpServerOptions, requestHandler, gracefulShutdown)
                 verticles[verticle.index] = verticle
                 logger.info("Vertex HTTP ${verticle.id} deployed")
                 verticle
