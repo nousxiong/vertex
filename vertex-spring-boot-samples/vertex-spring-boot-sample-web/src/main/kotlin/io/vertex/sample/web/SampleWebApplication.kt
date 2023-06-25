@@ -39,11 +39,12 @@ class SampleWebApplication(private val vertx: Vertx) {
 	fun serverVerticleFactory(): VertexServerVerticleFactory {
 		return object : VertexServerVerticleFactory {
 			override fun create(
+				index: Int,
 				httpServerOptions: HttpServerOptions,
 				handler: Handler<RoutingContext>,
 				gracefulShutdown: GracefulShutdown?
 			): VertexServerVerticle {
-				return MyServerVerticle(httpServerOptions, handler, gracefulShutdown)
+				return MyServerVerticle(index, httpServerOptions, handler, gracefulShutdown)
 			}
 		}
 	}
@@ -59,10 +60,11 @@ class SampleWebApplication(private val vertx: Vertx) {
 }
 
 class MyServerVerticle(
+	index: Int,
 	httpServerOptions: HttpServerOptions,
 	requestHandler: Handler<RoutingContext>,
 	gracefulShutdown: GracefulShutdown?,
-) : VertexServerVerticle(httpServerOptions, requestHandler, gracefulShutdown)
+) : VertexServerVerticle(index, httpServerOptions, requestHandler, gracefulShutdown)
 
 fun main(args: Array<String>) {
 	runApplication<SampleWebApplication>(*args)
