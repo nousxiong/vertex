@@ -3,6 +3,7 @@ package io.vertex.autoconfigure.web.server
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.job
+import org.slf4j.LoggerFactory
 import org.springframework.boot.web.server.GracefulShutdownCallback
 import org.springframework.boot.web.server.GracefulShutdownResult
 import java.time.Clock
@@ -21,6 +22,9 @@ class GracefulShutdown(
     private val periodMillis: Long = 100L,
     private val timeoutMillis: Long = 20 * 1000L,
 ) {
+    companion object {
+        private val logger = LoggerFactory.getLogger(GracefulShutdown::class.java)
+    }
     @Volatile
     private var aborted = false
     private val shutDownResults = AtomicIntegerArray(verticleInstances)
@@ -35,6 +39,7 @@ class GracefulShutdown(
         } else {
             GracefulShutdownResult.REQUESTS_ACTIVE
         }
+        logger.info("Graceful shutdown complete($result)")
         callback.shutdownComplete(result)
     }
 

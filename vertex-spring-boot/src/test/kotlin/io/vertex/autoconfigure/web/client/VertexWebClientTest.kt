@@ -39,7 +39,7 @@ class VertexWebClientTest {
     class TestController {
         @GetMapping(URL)
         suspend fun hello(): String {
-            logger.info("vertex ctx=${VertexServerVerticle.getIdOrNull()}")
+            logger.info("vertex ctx=${VertexServerVerticle.idOrNull()}")
             return "hello"
         }
     }

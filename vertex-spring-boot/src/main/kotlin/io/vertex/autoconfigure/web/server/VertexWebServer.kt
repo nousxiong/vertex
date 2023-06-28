@@ -101,6 +101,7 @@ class VertexWebServer(
             callback.shutdownComplete(GracefulShutdownResult.IMMEDIATE)
             return
         }
+        logger.info("Commencing graceful shutdown. Waiting for active requests to complete")
         vertx.undeploy(deploymentId).onComplete {
             deploymentId = ""
             for (i in 0 until verticles.length()) {

@@ -29,7 +29,7 @@ class VertexActuatorTest {
     class TestController {
         @GetMapping("/hello")
         suspend fun hello(): String {
-            logger.info("vertex ctx=${VertexServerVerticle.getIdOrNull()}")
+            logger.info("vertex ctx=${VertexServerVerticle.idOrNull()}")
             return "hello"
         }
     }
