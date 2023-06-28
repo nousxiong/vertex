@@ -76,6 +76,7 @@ dependencies {
 	}
 //	api("jakarta.websocket:jakarta.websocket-api:2.0.0")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("io.projectreactor:reactor-core")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")

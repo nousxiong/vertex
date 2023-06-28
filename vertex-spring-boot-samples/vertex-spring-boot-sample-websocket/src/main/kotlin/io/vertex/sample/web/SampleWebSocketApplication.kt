@@ -73,9 +73,9 @@ class SampleWebSocketApplication(private val vertx: Vertx) {
 	}
 
 	private suspend fun handleMessage(message: WebSocketMessage): String {
-		logger.info("vertex before vid=${VertexServerVerticle.getIdOrNull()}")
+		logger.info("vertex before vid=${VertexServerVerticle.idOrNull()}")
 		logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
-		logger.info("vertex after vid=${VertexServerVerticle.getIdOrNull()}")
+		logger.info("vertex after vid=${VertexServerVerticle.idOrNull()}")
 		return message.payloadAsText.uppercase(Locale.getDefault())
 	}
 

@@ -51,10 +51,10 @@ class SampleWebApplication(private val vertx: Vertx) {
 
 	@GetMapping("/hello")
 	suspend fun hello(): String {
-		logger.info("vertex before vid=${VertexServerVerticle.getIdOrNull()}")
+		logger.info("vertex before vid=${VertexServerVerticle.idOrNull()}")
 //		delay(100L)
 		logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
-		logger.info("vertex after vid=${VertexServerVerticle.getIdOrNull()}")
+		logger.info("vertex after vid=${VertexServerVerticle.idOrNull()}")
 		return "Hello, World!"
 	}
 }
