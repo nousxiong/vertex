@@ -1,7 +1,7 @@
 package io.vertex.autoconfigure.web.client
 
 import io.vertex.autoconfigure.common.VertexWebSocketSession
-import io.vertex.utils.BufferConverter
+import io.vertex.util.BufferConverter
 import io.vertx.core.AsyncResult
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientOptions

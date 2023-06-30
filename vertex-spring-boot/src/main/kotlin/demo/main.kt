@@ -2,7 +2,7 @@ package demo
 
 import io.vertex.autoconfigure.core.VerticleLifecycle
 import io.vertex.autoconfigure.core.VertexVerticle
-import io.vertex.utils.verticleScope
+import io.vertex.util.verticleScope
 import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient

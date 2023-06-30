@@ -1,4 +1,4 @@
-package io.vertex.utils
+package io.vertex.util
 
 import io.netty.buffer.ByteBufAllocator
 import io.vertx.core.buffer.Buffer

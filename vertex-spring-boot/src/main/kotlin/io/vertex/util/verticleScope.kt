@@ -1,4 +1,4 @@
-package io.vertex.utils
+package io.vertex.util
 
 import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertx.core.Vertx

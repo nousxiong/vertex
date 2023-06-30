@@ -1,6 +1,6 @@
 package io.vertex.autoconfigure.web.server
 
-import io.vertex.utils.BufferConverter
+import io.vertex.util.BufferConverter
 import io.vertx.core.Handler
 import io.vertx.ext.web.RoutingContext
 import org.slf4j.LoggerFactory

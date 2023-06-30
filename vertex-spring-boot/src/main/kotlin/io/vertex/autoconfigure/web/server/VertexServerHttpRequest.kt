@@ -1,7 +1,7 @@
 package io.vertex.autoconfigure.web.server
 
-import io.vertex.utils.BufferConverter
-import io.vertex.utils.CookieConverter
+import io.vertex.util.BufferConverter
+import io.vertex.util.CookieConverter
 import io.vertex.autoconfigure.common.ReadStreamFluxBuilder
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.HttpServerRequest

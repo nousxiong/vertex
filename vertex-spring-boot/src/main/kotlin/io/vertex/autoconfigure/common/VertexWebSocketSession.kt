@@ -1,6 +1,6 @@
 package io.vertex.autoconfigure.common
 
-import io.vertex.utils.BufferConverter
+import io.vertex.util.BufferConverter
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.WebSocketBase
 import org.reactivestreams.Publisher

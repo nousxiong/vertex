@@ -1,4 +1,4 @@
-package io.vertex.utils
+package io.vertex.util
 
 import io.vertx.core.http.Cookie
 import org.springframework.http.HttpCookie
