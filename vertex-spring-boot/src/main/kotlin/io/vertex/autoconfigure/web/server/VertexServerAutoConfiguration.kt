@@ -1,5 +1,6 @@
 package io.vertex.autoconfigure.web.server
 
+import io.vertex.autoconfigure.core.GracefulShutdown
 import io.vertex.autoconfigure.web.server.properties.HttpServerOptionsCustomizer
 import io.vertex.autoconfigure.web.server.properties.HttpServerProperties
 import io.vertex.autoconfigure.web.server.properties.ServerDeploymentProperties

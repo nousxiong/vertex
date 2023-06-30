@@ -1,4 +1,4 @@
-package io.vertex.autoconfigure.web.server
+package io.vertex.autoconfigure.core
 
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.delay
@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray
 
 /**
  * Created by xiongxl in 2023/6/8
+ * Mod by xiongxl in 2023/6/30 修改为VertexVerticle版本
  * @param minRemainJob 剩余最小job数量就退出
  * @param periodMillis 循环检查时间（毫秒）
  * @param timeoutMillis 等待超时时间（毫秒）
@@ -46,7 +47,7 @@ class GracefulShutdown(
     /**
      * @return true未超时结束，false超时
      */
-    suspend fun awaitCompletion(verticle: VertexServerVerticle): Boolean {
+    suspend fun awaitCompletion(verticle: VertexVerticle): Boolean {
         require(minRemainJob >= 0)
         require(periodMillis > 0L)
         val job = verticle.coroutineContext.job as CompletableJob

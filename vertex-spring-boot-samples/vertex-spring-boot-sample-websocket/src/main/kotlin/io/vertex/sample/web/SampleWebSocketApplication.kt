@@ -1,6 +1,7 @@
 package io.vertex.sample.web
 
-import io.vertex.autoconfigure.web.server.GracefulShutdown
+import io.vertex.autoconfigure.core.GracefulShutdown
+import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticleFactory
 import io.vertx.core.Handler
@@ -73,9 +74,9 @@ class SampleWebSocketApplication(private val vertx: Vertx) {
 	}
 
 	private suspend fun handleMessage(message: WebSocketMessage): String {
-		logger.info("vertex before vid=${VertexServerVerticle.idOrNull()}")
+		logger.info("vertex before vid=${VertexVerticle.idOrNull()}")
 		logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
-		logger.info("vertex after vid=${VertexServerVerticle.idOrNull()}")
+		logger.info("vertex after vid=${VertexVerticle.idOrNull()}")
 		return message.payloadAsText.uppercase(Locale.getDefault())
 	}
 
@@ -92,10 +93,10 @@ class SampleWebSocketApplication(private val vertx: Vertx) {
 }
 
 class MyServerVerticle(
-	index: Int,
-	httpServerOptions: HttpServerOptions,
-	requestHandler: Handler<RoutingContext>,
-	gracefulShutdown: GracefulShutdown?,
+    index: Int,
+    httpServerOptions: HttpServerOptions,
+    requestHandler: Handler<RoutingContext>,
+    gracefulShutdown: GracefulShutdown?,
 ) : VertexServerVerticle(index, httpServerOptions, requestHandler, gracefulShutdown)
 
 fun main(args: Array<String>) {

@@ -1,5 +1,6 @@
 package io.vertex.autoconfigure.web.server
 
+import io.vertex.autoconfigure.core.GracefulShutdown
 import io.vertx.core.AsyncResult
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Handler

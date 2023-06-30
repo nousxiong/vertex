@@ -1,8 +1,8 @@
 package io.vertex.autoconfigure.web.client
 
 import io.vertex.autoconfigure.core.VertexAutoConfiguration
+import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.web.server.VertexServerAutoConfiguration
-import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,7 +39,7 @@ class VertexWebClientTest {
     class TestController {
         @GetMapping(URL)
         suspend fun hello(): String {
-            logger.info("vertex ctx=${VertexServerVerticle.idOrNull()}")
+            logger.info("vertex ctx=${VertexVerticle.idOrNull()}")
             return "hello"
         }
     }
