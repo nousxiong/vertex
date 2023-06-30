@@ -3,11 +3,11 @@ import java.io.FileInputStream
 import java.util.*
 
 plugins {
-	id("org.springframework.boot") version "3.1.0"
-	id("io.spring.dependency-management") version "1.1.0"
-	id("org.jetbrains.kotlin.kapt") version "1.8.22"
-	kotlin("jvm") version "1.8.22"
-	kotlin("plugin.spring") version "1.8.22"
+	id("org.springframework.boot")
+	id("io.spring.dependency-management")
+	id("org.jetbrains.kotlin.kapt")
+	kotlin("jvm")
+	kotlin("plugin.spring")
 	id("maven-publish")
 }
 
