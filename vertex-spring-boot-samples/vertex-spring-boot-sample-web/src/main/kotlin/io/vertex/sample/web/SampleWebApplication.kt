@@ -1,6 +1,7 @@
 package io.vertex.sample.web
 
 import io.vertex.autoconfigure.core.GracefulShutdown
+import io.vertex.autoconfigure.core.VertexCloser
 import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticleFactory
@@ -57,6 +58,16 @@ class SampleWebApplication(private val vertx: Vertx) {
 		logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
 		logger.info("vertex after vid=${VertexVerticle.idOrNull()}")
 		return "Hello, World!"
+	}
+
+	@Bean
+	fun vertexCloser(vertx: Vertx): VertexCloser {
+		return object : VertexCloser {
+			override fun close() {
+				logger.info("close vertex")
+				vertx.close()
+			}
+		}
 	}
 }
 

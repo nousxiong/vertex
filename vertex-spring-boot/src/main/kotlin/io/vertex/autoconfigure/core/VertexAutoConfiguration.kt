@@ -3,6 +3,7 @@ package io.vertex.autoconfigure.core
 import io.vertex.autoconfigure.core.properties.VertxProperties
 import io.vertx.core.Vertx
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,5 +22,15 @@ class VertexAutoConfiguration {
     @Bean(destroyMethod = "")
     fun vertx(properties: VertxProperties): Vertx {
         return Vertx.vertx(properties)
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun vertexCloser(vertx: Vertx): VertexCloser {
+        return object : VertexCloser {
+            override fun close() {
+                vertx.close()
+            }
+        }
     }
 }
