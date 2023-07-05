@@ -1,7 +1,7 @@
 package io.vertex.autoconfigure.web.client
 
 import io.vertex.autoconfigure.common.ReadStreamFluxBuilder
-import io.vertex.utils.BufferConverter
+import io.vertex.util.BufferConverter
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.*

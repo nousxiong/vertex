@@ -1,6 +1,6 @@
 package io.vertex.autoconfigure.web.client
 
-import io.vertex.utils.CookieConverter
+import io.vertex.util.CookieConverter
 import io.vertx.core.http.HttpClientResponse
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.*

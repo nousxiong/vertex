@@ -1,7 +1,7 @@
 package io.vertex.autoconfigure.web.client
 
 import io.vertex.autoconfigure.common.WriteStreamSubscriber
-import io.vertex.utils.BufferConverter
+import io.vertex.util.BufferConverter
 import io.vertx.core.http.HttpClientRequest
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber

@@ -1,6 +1,8 @@
 package io.vertex.sample.web
 
-import io.vertex.autoconfigure.web.server.GracefulShutdown
+import io.vertex.autoconfigure.core.GracefulShutdown
+import io.vertex.autoconfigure.core.VertexCloser
+import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticleFactory
 import io.vertx.core.Handler
@@ -51,19 +53,29 @@ class SampleWebApplication(private val vertx: Vertx) {
 
 	@GetMapping("/hello")
 	suspend fun hello(): String {
-		logger.info("vertex before vid=${VertexServerVerticle.idOrNull()}")
+		logger.info("vertex before vid=${VertexVerticle.idOrNull()}")
 //		delay(100L)
 		logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
-		logger.info("vertex after vid=${VertexServerVerticle.idOrNull()}")
+		logger.info("vertex after vid=${VertexVerticle.idOrNull()}")
 		return "Hello, World!"
+	}
+
+	@Bean
+	fun vertexCloser(vertx: Vertx): VertexCloser {
+		return object : VertexCloser {
+			override fun close() {
+				logger.info("close vertex")
+				vertx.close()
+			}
+		}
 	}
 }
 
 class MyServerVerticle(
-	index: Int,
-	httpServerOptions: HttpServerOptions,
-	requestHandler: Handler<RoutingContext>,
-	gracefulShutdown: GracefulShutdown?,
+    index: Int,
+    httpServerOptions: HttpServerOptions,
+    requestHandler: Handler<RoutingContext>,
+    gracefulShutdown: GracefulShutdown?,
 ) : VertexServerVerticle(index, httpServerOptions, requestHandler, gracefulShutdown)
 
 fun main(args: Array<String>) {

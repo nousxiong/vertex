@@ -1,7 +1,7 @@
 package io.vertex.autoconfigure.web.server
 
 import io.vertex.autoconfigure.common.VertexWebSocketSession
-import io.vertex.utils.BufferConverter
+import io.vertex.util.BufferConverter
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.ServerWebSocket
 import org.slf4j.LoggerFactory

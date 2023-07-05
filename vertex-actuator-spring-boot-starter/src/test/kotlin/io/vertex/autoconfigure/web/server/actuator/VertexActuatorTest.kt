@@ -1,6 +1,6 @@
 package io.vertex.autoconfigure.web.server.actuator
 
-import io.vertex.autoconfigure.web.server.VertexServerVerticle
+import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertx.core.json.JsonObject
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
@@ -29,7 +29,7 @@ class VertexActuatorTest {
     class TestController {
         @GetMapping("/hello")
         suspend fun hello(): String {
-            logger.info("vertex ctx=${VertexServerVerticle.idOrNull()}")
+            logger.info("vertex ctx=${VertexVerticle.idOrNull()}")
             return "hello"
         }
     }

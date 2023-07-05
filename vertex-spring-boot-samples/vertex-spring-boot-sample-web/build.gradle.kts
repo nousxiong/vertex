@@ -38,7 +38,6 @@ dependencies {
 	implementation(project(":vertex-web-spring-boot-starter"))
 	implementation(project(":vertex-actuator-spring-boot-starter"))
 	implementation("jakarta.websocket:jakarta.websocket-api:2.0.0")
-//	implementation("io.vertex:vertex-web-spring-boot-starter:$vertexSpringBootVersion")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	testImplementation(project(":vertex-web-test-spring-boot-starter"))
 }

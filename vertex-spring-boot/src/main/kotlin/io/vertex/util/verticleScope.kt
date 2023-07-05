@@ -1,6 +1,6 @@
-package io.vertex.utils
+package io.vertex.util
 
-import io.vertex.autoconfigure.web.server.VertexServerVerticle
+import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -16,8 +16,10 @@ fun <T> verticleScope(
     context: CoroutineContext = EmptyCoroutineContext,
     block: suspend CoroutineScope.() -> T?
 ): Mono<T> {
-    return VertexServerVerticle.coroutineScope().mono(
-        Vertx.currentContext().dispatcher() + context,
+    val ctx = Vertx.currentContext()
+    check(ctx != null) { "verticleScope must be called in a verticle context" }
+    return VertexVerticle.coroutineScope(ctx).mono(
+        ctx.dispatcher() + context,
         block
     )
 }

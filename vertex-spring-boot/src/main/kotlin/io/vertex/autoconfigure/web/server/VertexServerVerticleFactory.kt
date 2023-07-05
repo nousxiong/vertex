@@ -1,5 +1,6 @@
 package io.vertex.autoconfigure.web.server
 
+import io.vertex.autoconfigure.core.GracefulShutdown
 import io.vertx.core.Handler
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.ext.web.RoutingContext
