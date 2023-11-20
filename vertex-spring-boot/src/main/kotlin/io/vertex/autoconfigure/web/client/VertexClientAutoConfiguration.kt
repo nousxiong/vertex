@@ -2,9 +2,11 @@ package io.vertex.autoconfigure.web.client
 
 import io.vertex.autoconfigure.web.client.properties.HttpClientOptionsCustomizer
 import io.vertex.autoconfigure.web.client.properties.HttpClientProperties
+import io.vertex.autoconfigure.web.client.properties.WebSocketClientProperties
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpClientOptions
+import io.vertx.core.http.WebSocketClientOptions
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
@@ -24,21 +26,23 @@ import org.springframework.web.reactive.function.client.WebClient
 @ConditionalOnBean(Vertx::class)
 @ConditionalOnMissingBean(ClientHttpConnector::class)
 @AutoConfigureBefore(ClientHttpConnectorAutoConfiguration::class)
-@EnableConfigurationProperties(HttpClientProperties::class)
+@EnableConfigurationProperties(HttpClientProperties::class, WebSocketClientProperties::class)
 class VertexClientAutoConfiguration(
-    httpClientProperties: HttpClientProperties,
-    customizers: Set<HttpClientOptionsCustomizer>,
+    private val httpClientProperties: HttpClientProperties,
+    private val webSocketClientProperties: WebSocketClientProperties,
+    private val customizers: Set<HttpClientOptionsCustomizer>,
 ) {
-    private val httpClientOptions = customizeHttpClientOptions(httpClientProperties, customizers)
 
     @Bean
     fun vertexClientHttpConnector(vertx: Vertx): VertexClientHttpConnector {
+        val httpClientOptions = customizeHttpClientOptions(httpClientProperties, customizers)
         return VertexClientHttpConnector(vertx, httpClientOptions)
     }
 
     @Bean
     fun vertexWebSocketClient(vertx: Vertx): VertexWebSocketClient {
-        return VertexWebSocketClient(vertx, httpClientOptions)
+        val webSocketClientOptions = WebSocketClientOptions(webSocketClientProperties)
+        return VertexWebSocketClient(vertx, webSocketClientOptions)
     }
 
     private fun customizeHttpClientOptions(

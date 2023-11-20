@@ -4,8 +4,8 @@ import io.vertex.autoconfigure.common.VertexWebSocketSession
 import io.vertex.util.BufferConverter
 import io.vertx.core.AsyncResult
 import io.vertx.core.Vertx
-import io.vertx.core.http.HttpClientOptions
 import io.vertx.core.http.WebSocket
+import io.vertx.core.http.WebSocketClientOptions
 import io.vertx.core.http.WebSocketConnectOptions
 import io.vertx.core.http.impl.headers.HeadersMultiMap
 import org.springframework.http.HttpHeaders
@@ -18,10 +18,11 @@ import java.net.URI
 
 /**
  * Created by xiongxl in 2023/6/21
+ * Modified by xiongxl in 2023/11/20 upgrade vertx version to 4.5.0, add WebSocketClientOptions
  */
 class VertexWebSocketClient(
     private val vertx: Vertx,
-    private val clientOptions: HttpClientOptions = HttpClientOptions(),
+    private val clientOptions: WebSocketClientOptions = WebSocketClientOptions(),
 ) : WebSocketClient {
     private val bufferConverter = BufferConverter()
     override fun execute(url: URI, handler: WebSocketHandler): Mono<Void> {
@@ -42,13 +43,14 @@ class VertexWebSocketClient(
     }
 
     private fun connect(uri: URI, headers: HeadersMultiMap, handler: WebSocketHandler, callback: MonoSink<Void>) {
-        val client = vertx.createHttpClient(clientOptions)
+//        val client = vertx.createHttpClient(clientOptions)
+        val client = vertx.createWebSocketClient(clientOptions)
         val options = WebSocketConnectOptions()
             .setPort(uri.port)
             .setHost(uri.host)
             .setURI(uri.path)
             .setHeaders(headers)
-        client.webSocket(
+        client.connect(
             options
         ) { result: AsyncResult<WebSocket> ->
             if (result.failed()) {
@@ -83,7 +85,7 @@ class VertexWebSocketClient(
         val handshakeInfo = HandshakeInfo(uri, HttpHeaders(), Mono.empty(), socket.subProtocol())
         return VertexWebSocketSession(
             socket, handshakeInfo, bufferConverter,
-            clientOptions.maxWebSocketFrameSize, clientOptions.maxWebSocketMessageSize
+            clientOptions.maxFrameSize, clientOptions.maxMessageSize
         )
     }
 }

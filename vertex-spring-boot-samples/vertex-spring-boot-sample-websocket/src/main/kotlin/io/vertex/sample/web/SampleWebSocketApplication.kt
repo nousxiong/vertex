@@ -9,7 +9,7 @@ import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.client.WebClient
-import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
@@ -84,7 +84,7 @@ class SampleWebSocketApplication(private val vertx: Vertx) {
 		val client = WebClient.create(vertx)
 		try {
 			val req = client.get(host, uri)
-			val rsp = req.send().await()
+			val rsp = req.send().coAwait()
 			return rsp.bodyAsString().length
 		} finally {
 			client.close()

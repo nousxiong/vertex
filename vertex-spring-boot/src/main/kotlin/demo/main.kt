@@ -1,12 +1,12 @@
 package demo
 
-import io.vertex.autoconfigure.core.VerticleLifecycle
 import io.vertex.autoconfigure.core.VertexVerticle
+import io.vertex.autoconfigure.core.VerticleLifecycle
 import io.vertex.util.verticleScope
 import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
-import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.coAwait
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -54,7 +54,7 @@ class VertexApplication(private val vertx: Vertx) {
     private suspend fun getUrlSize(host: String, uri: String = "/"): Int {
         val client = webClient2.getAwait()
         val req = client.get(host, uri)
-        val rsp = req.send().await()
+        val rsp = req.send().coAwait()
         return rsp.bodyAsString().length
     }
 
