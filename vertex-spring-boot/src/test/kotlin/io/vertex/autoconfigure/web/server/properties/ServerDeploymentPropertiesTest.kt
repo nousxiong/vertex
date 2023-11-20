@@ -1,5 +1,6 @@
 package io.vertex.autoconfigure.web.server.properties
 
+import io.vertex.autoconfigure.core.VertexAutoConfiguration
 import io.vertex.autoconfigure.web.server.VertexServerAutoConfiguration
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
@@ -9,7 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import kotlin.test.assertEquals
 
 @SpringBootTest(
-    classes = [VertexServerAutoConfiguration::class],
+    classes = [
+        VertexAutoConfiguration::class,
+        VertexServerAutoConfiguration::class],
     properties = [
         "vertex.http.server.deployments.instances=2"
     ]
