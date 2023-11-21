@@ -3,16 +3,16 @@
 ### 项目结构
 ```
 ├── vertex-spring-boot 核心模块
-│   ├── 1、替换springboot的webserver（包括client）为vertx-web
-│   │   ├── 1.1、Vertx.Verticle风格
-│   │   ├── 1.2、实现在Vertx.CoroutineVerticle的CoroutineContext上执行spring-webflux构建的kotlin协程
-│   │   │   ├── 1.2.1、替换kotlinx.coroutines.reactor.Monokt
-│   │   │   └── 1.2.2、使用verticleScope
-│   │   ├── 1.3、GracefulShutdown
+│   └── 1、替换springboot的webserver（包括client）为vertx-web
+│       ├── 1.1、Vertx.Verticle风格
+│       ├── 1.2、实现在Vertx.CoroutineVerticle的CoroutineContext上执行spring-webflux构建的kotlin协程
+│       │   ├── 1.2.1、替换kotlinx.coroutines.reactor.Monokt
+│       │   └── 1.2.2、使用verticleScope
+│       └── 1.3、GracefulShutdown
 ├── vertex-spring-boot-starter 对应vertex-spring-boot的starter模块
 ├── vertex-spring-boot-starter-test 用户配合使用vertex-spring-boot的测试模块
 ├── vertex-actuator-spring-boot-starter 如果要分离（端口）actuator，需要使用此模块
-├── vertex-spring-boot-samples http和websocket的示例
+└── vertex-spring-boot-samples http和websocket的示例
 ```
 ### 说明
 https://github.com/snowdrop/vertx-spring-boot
