@@ -24,6 +24,9 @@ class VertexAutoConfiguration {
         return Vertx.vertx(properties)
     }
 
+    /**
+     * @see org.springframework.beans.factory.support.DisposableBeanAdapter
+     */
     @Bean
     @ConditionalOnMissingBean
     fun vertexCloser(vertx: Vertx): VertexCloser {

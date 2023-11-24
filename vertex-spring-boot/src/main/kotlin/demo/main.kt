@@ -1,5 +1,6 @@
 package demo
 
+import io.vertex.autoconfigure.core.VertexCloser
 import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.core.VerticleLifecycle
 import io.vertex.util.verticleScope
@@ -7,10 +8,12 @@ import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.coAwait
+import kotlinx.coroutines.delay
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.Bean
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -72,9 +75,19 @@ class VertexApplication(private val vertx: Vertx) {
         logger.info("vertex before ctx=${VertexVerticle.id()}")
         logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
         logger.info("vertex after ctx=${VertexVerticle.id()}")
-//        delay(5 * 1000L)
+        delay(1 * 300L)
         logger.info("vertex delayed ctx=${VertexVerticle.id()}")
         "Hello, World!"
+    }
+
+    @Bean
+    fun vertexCloser(vertx: Vertx): VertexCloser {
+        return object : VertexCloser {
+            override fun close() {
+                logger.info("close vertex")
+                vertx.close()
+            }
+        }
     }
 }
 
