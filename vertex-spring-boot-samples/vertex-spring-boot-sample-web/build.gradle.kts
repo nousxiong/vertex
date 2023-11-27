@@ -11,6 +11,7 @@ plugins {
 
 val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
+val jakartaWebsocketVersion: String by project
 
 group = "io.vertex"
 version = "0.0.1"
@@ -37,7 +38,7 @@ repositories {
 dependencies {
 	implementation(project(":vertex-web-spring-boot-starter"))
 	implementation(project(":vertex-actuator-spring-boot-starter"))
-	implementation("jakarta.websocket:jakarta.websocket-api:2.0.0")
+	implementation("jakarta.websocket:jakarta.websocket-api:$jakartaWebsocketVersion")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	testImplementation(project(":vertex-web-test-spring-boot-starter"))
 }
