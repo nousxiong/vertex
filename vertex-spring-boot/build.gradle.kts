@@ -13,6 +13,7 @@ plugins {
 
 val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
+val springmockkVersion: String by project
 
 group = "io.vertex"
 version = vertexSpringBootVersion
@@ -71,21 +72,21 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-autoconfigure")
-	api("org.springframework.boot:spring-boot-starter-webflux") {
+	implementation("org.springframework.boot:spring-boot-starter-webflux") {
 		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
 	}
-//	api("jakarta.websocket:jakarta.websocket-api:2.0.0")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("io.projectreactor:reactor-core")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-	api("io.vertx:vertx-core:${vertxVersion}")
-	api("io.vertx:vertx-lang-kotlin:${vertxVersion}")
-	api("io.vertx:vertx-lang-kotlin-coroutines:${vertxVersion}")
-	compileOnly("io.vertx:vertx-web:$vertxVersion")
-	compileOnly("io.vertx:vertx-web-client:$vertxVersion")
+	implementation("io.vertx:vertx-core:${vertxVersion}")
+	implementation("io.vertx:vertx-lang-kotlin:${vertxVersion}")
+	implementation("io.vertx:vertx-lang-kotlin-coroutines:${vertxVersion}")
+	implementation("io.vertx:vertx-web:$vertxVersion")
+	implementation("io.vertx:vertx-web-client:$vertxVersion")
+	implementation("org.springframework.data:spring-data-commons")
 	kapt("org.springframework.boot:spring-boot-autoconfigure-processor")
 	kapt("org.springframework.boot:spring-boot-configuration-processor")
 	testImplementation("org.junit.jupiter:junit-jupiter-api")
@@ -93,11 +94,10 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(module = "mockito-core")
 	}
-	testImplementation("com.ninja-squad:springmockk:4.0.2")
+	testImplementation("com.ninja-squad:springmockk:$springmockkVersion")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation(kotlin("test"))
-	testRuntimeOnly("io.vertx:vertx-web:$vertxVersion")
-	testRuntimeOnly("io.vertx:vertx-web-client:$vertxVersion")
+	testImplementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 }
 
 tasks.getByName<Jar>("jar") {

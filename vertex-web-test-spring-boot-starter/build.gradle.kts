@@ -13,6 +13,7 @@ plugins {
 
 val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
+val springmockkVersion: String by project
 
 group = "io.vertex"
 version = vertexSpringBootVersion
@@ -75,7 +76,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation(kotlin("test"))
     testImplementation(project(":vertex-web-spring-boot-starter"))
-    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("com.ninja-squad:springmockk:$springmockkVersion")
 }
 
 tasks.getByName<Jar>("jar") {

@@ -61,6 +61,9 @@ repositories {
 
 dependencies {
 	api(project(":vertex-spring-boot-starter"))
+	api("org.springframework.boot:spring-boot-starter-webflux") {
+		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
+	}
 	api("io.vertx:vertx-web:$vertxVersion")
 	api("io.vertx:vertx-web-client:$vertxVersion")
 }

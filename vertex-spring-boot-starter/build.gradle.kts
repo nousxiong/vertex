@@ -11,6 +11,7 @@ plugins {
 }
 
 val vertexSpringBootVersion: String by project
+val vertxVersion: String by project
 
 group = "io.vertex"
 version = vertexSpringBootVersion
@@ -61,7 +62,9 @@ repositories {
 dependencies {
 	api("org.springframework.boot:spring-boot-starter")
 	api(project(":vertex-spring-boot"))
-//	api("io.vertex:vertex-spring-boot:$vertexSpringBootVersion")
+	api("io.vertx:vertx-core:${vertxVersion}")
+	api("io.vertx:vertx-lang-kotlin:${vertxVersion}")
+	api("io.vertx:vertx-lang-kotlin-coroutines:${vertxVersion}")
 }
 
 tasks.getByName<Jar>("jar") {
