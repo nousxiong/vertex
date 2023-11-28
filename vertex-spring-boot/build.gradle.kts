@@ -11,13 +11,15 @@ plugins {
 	id("maven-publish")
 }
 
+val javaVersion: String by project
+val kotlinJvmTarget: String by project
 val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
 val springmockkVersion: String by project
 
 group = "io.vertex"
 version = vertexSpringBootVersion
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.valueOf(javaVersion)
 
 val localProperties = Properties().apply {
 	load(FileInputStream(File(rootProject.rootDir, "local.properties")))
@@ -72,21 +74,31 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-autoconfigure")
-	implementation("org.springframework.boot:spring-boot-starter-webflux") {
-		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
-	}
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("io.projectreactor:reactor-core")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+	//#region vertex.core
 	implementation("io.vertx:vertx-core:${vertxVersion}")
 	implementation("io.vertx:vertx-lang-kotlin:${vertxVersion}")
 	implementation("io.vertx:vertx-lang-kotlin-coroutines:${vertxVersion}")
+	//#endregion vertex.core
+	//#region vertex.web
+	implementation("org.springframework.boot:spring-boot-starter-webflux") {
+		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
+	}
 	implementation("io.vertx:vertx-web:$vertxVersion")
 	implementation("io.vertx:vertx-web-client:$vertxVersion")
+	//#endregion vertex.web
+	//#region vertex.data
 	implementation("org.springframework.data:spring-data-commons")
+//	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+//	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+//	runtimeOnly("com.mysql:mysql-connector-j")
+//	runtimeOnly("io.asyncer:r2dbc-mysql")
+	//#endregion vertex.data
 	kapt("org.springframework.boot:spring-boot-autoconfigure-processor")
 	kapt("org.springframework.boot:spring-boot-configuration-processor")
 	testImplementation("org.junit.jupiter:junit-jupiter-api")
@@ -107,7 +119,7 @@ tasks.getByName<Jar>("jar") {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "17"
+		jvmTarget = kotlinJvmTarget
 	}
 }
 
@@ -120,7 +132,7 @@ tasks.withType<Test> {
 
 	// 为了去掉仅执行部分测试而报的警告：tests were Method or class mismatch
 	// 方案见：https://stackoverflow.com/questions/66586272/running-a-single-junit5-test-on-gradle-exits-with-standard-error
-	systemProperty("java.util.logging.config.file", "${project.buildDir}/resources/test/logging-test.properties")
+	systemProperty("java.util.logging.config.file", "${project.layout.buildDirectory}/resources/test/logging-test.properties")
 	setForkEvery(1)
 
 	testLogging {

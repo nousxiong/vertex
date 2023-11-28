@@ -1,5 +1,8 @@
 package demo
 
+//import org.springframework.data.redis.connection.RedisConnectionFactory
+//import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+//import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
 import io.vertex.autoconfigure.core.VertexCloser
 import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.core.VerticleLifecycle
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController
  * Created by xiongxl in 2023/6/16
  */
 @SpringBootApplication
+//@EnableRedisRepositories
 @RestController
 class VertexApplication(private val vertx: Vertx) {
     companion object {
@@ -54,18 +58,34 @@ class VertexApplication(private val vertx: Vertx) {
         it.close()
     }
 
-    private suspend fun getUrlSize(host: String, uri: String = "/"): Int {
+    private suspend fun getUrlSizeAwait(host: String, uri: String = "/"): Int {
         val client = webClient2.getAwait()
         val req = client.get(host, uri)
         val rsp = req.send().coAwait()
         return rsp.bodyAsString().length
     }
 
+    private fun getUrlSize(host: String, uri: String = "/"): Int {
+        val client = webClient.get()
+        val req = client.get(host, uri)
+        val rsp = Future.await(req.send())
+        return rsp.bodyAsString().length
+    }
+
+    @GetMapping("/hi")
+    fun hi(): String {
+        logger.info("vertex ctx=${VertexVerticle.id()}")
+//        Thread.sleep(100L)
+        logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
+        logger.info("vertex ctx=${VertexVerticle.id()}")
+        return "Hello, World!"
+    }
+
     @GetMapping("/hello")
     suspend fun hello(): String {
         logger.info("vertex ctx=${VertexVerticle.id()}")
 //        delay(100L)
-        logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
+        logger.info("baidu size: ${getUrlSizeAwait("www.baidu.com")}")
         logger.info("vertex ctx=${VertexVerticle.id()}")
         return "Hello, World!"
     }
@@ -73,7 +93,7 @@ class VertexApplication(private val vertx: Vertx) {
     @GetMapping("/verticle")
     fun verticle() = verticleScope {
         logger.info("vertex before ctx=${VertexVerticle.id()}")
-        logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
+        logger.info("baidu size: ${getUrlSizeAwait("www.baidu.com")}")
         logger.info("vertex after ctx=${VertexVerticle.id()}")
         delay(1 * 300L)
         logger.info("vertex delayed ctx=${VertexVerticle.id()}")
@@ -89,6 +109,11 @@ class VertexApplication(private val vertx: Vertx) {
             }
         }
     }
+
+//    @Bean
+//    fun redisConnectionFactory(): RedisConnectionFactory {
+//        return LettuceConnectionFactory()
+//    }
 }
 
 fun main(args: Array<String>) {
