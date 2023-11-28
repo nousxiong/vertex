@@ -9,12 +9,14 @@ plugins {
 	kotlin("plugin.spring")
 }
 
+val javaVersion: String by project
+val kotlinJvmTarget: String by project
 val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
 
 group = "io.vertex"
 version = "0.0.1"
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.valueOf(javaVersion)
 
 val localProperties = Properties().apply {
 	load(FileInputStream(File(rootProject.rootDir, "local.properties")))
@@ -36,7 +38,6 @@ repositories {
 
 dependencies {
 	implementation(project(":vertex-web-spring-boot-starter"))
-//	implementation("io.vertex:vertex-web-spring-boot-starter:$vertexSpringBootVersion")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -46,7 +47,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "17"
+		jvmTarget = kotlinJvmTarget
 	}
 }
 

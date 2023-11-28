@@ -10,12 +10,14 @@ plugins {
 	id("maven-publish")
 }
 
+val javaVersion: String by project
+val kotlinJvmTarget: String by project
 val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
 
 group = "io.vertex"
 version = vertexSpringBootVersion
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.valueOf(javaVersion)
 
 val localProperties = Properties().apply {
 	load(FileInputStream(File(rootProject.rootDir, "local.properties")))
@@ -75,7 +77,7 @@ tasks.getByName<Jar>("jar") {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "17"
+		jvmTarget = "21"
 	}
 }
 
