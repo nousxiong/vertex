@@ -23,6 +23,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisHash
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
+import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.ListCrudRepository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
@@ -72,6 +73,11 @@ class SampleDataSimpleApplication(private val vertx: Vertx) {
 		template.connectionFactory = redisConnectionFactory
 		return template
 	}
+
+	@Bean
+	fun <T> sampleSave(): SampleSave<T> {
+		return KSampleSaveImpl()
+	}
 }
 
 @RedisHash("person")
@@ -95,8 +101,18 @@ class Person(
 //	}
 //}
 
+class KSampleSaveImpl<T> : SampleSave<T> {
+	companion object {
+		val logger: Logger = LoggerFactory.getLogger(KSampleSaveImpl::class.java)
+	}
+	override fun <S : T> save(entity: S): S {
+		logger.info("KSampleSaveImpl.save")
+		return entity
+	}
+}
+
 //interface PersonCrudRepository : CrudRepository<Person, Long>
-interface PersonCrudRepository : ListCrudRepository<Person, Long>, SampleSave<Person>
+interface PersonCrudRepository : CrudRepository<Person, Long>, SampleSave<Person>
 
 @RestController
 class SampleDataSimpleController(
@@ -110,10 +126,9 @@ class SampleDataSimpleController(
 	@GetMapping("/hello")
 	fun hello(): String {
 		logger.info("vertex ctx=${VertexVerticle.id()}")
+		personCrudRepository.save(Person("1", "xiong", "xiaolong2"))
 		val persionCount = personCrudRepository.count()
-		logger.info("personCrudRepository: ${personCrudRepository::class.simpleName}")
 		logger.info("persionCount: $persionCount")
-		personCrudRepository.save(Person("1", "xiong", "xiaolong"))
 		val persion = personCrudRepository.findById(1L)
 		logger.info("persion: ${persion.get().firstname}")
 		logger.info("vertex ctx=${VertexVerticle.id()}")
