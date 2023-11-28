@@ -1,8 +1,5 @@
 package demo
 
-//import org.springframework.data.redis.connection.RedisConnectionFactory
-//import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-//import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
 import io.vertex.autoconfigure.core.VertexCloser
 import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.core.VerticleLifecycle
@@ -17,6 +14,15 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.data.annotation.Id
+import org.springframework.data.redis.connection.RedisConnectionFactory
+import org.springframework.data.redis.connection.RedisPassword
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+import org.springframework.data.redis.core.RedisHash
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
+import org.springframework.data.repository.CrudRepository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -25,11 +31,57 @@ import org.springframework.web.bind.annotation.RestController
  * Created by xiongxl in 2023/6/16
  */
 @SpringBootApplication
-//@EnableRedisRepositories
+@EnableRedisRepositories
 @RestController
-class VertexApplication(private val vertx: Vertx) {
+class VertexApplication(
+    private val vertx: Vertx
+) {
     companion object {
         val logger: Logger = LoggerFactory.getLogger(VertexApplication::class.java)
+    }
+
+    @Bean
+    fun vertexCloser(vertx: Vertx): VertexCloser {
+        return object : VertexCloser {
+            override fun close() {
+                logger.info("close vertex")
+                vertx.close()
+            }
+        }
+    }
+
+    @Bean
+    fun redisConnectionFactory(): RedisConnectionFactory {
+        val redisCfg = RedisStandaloneConfiguration("bj-crs-hbcc149a.sql.tencentcdb.com", 23110).apply {
+            password = RedisPassword.of("APsM5NqeIWU")
+        }
+        return LettuceConnectionFactory(redisCfg)
+    }
+
+    @Bean
+    fun redisTemplate(redisConnectionFactory: RedisConnectionFactory): RedisTemplate<*, *> {
+        val template = RedisTemplate<ByteArray, ByteArray>()
+        template.connectionFactory = redisConnectionFactory
+        return template
+    }
+}
+
+@RedisHash("person")
+class Person(
+    @Id val id: String,
+    val firstname: String,
+    val lastname: String,
+)
+
+interface PersonCrudRepository : CrudRepository<Person, Long>
+
+@RestController
+class DemoController(
+    private val vertx: Vertx,
+    private val personCrudRepository: PersonCrudRepository
+) {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(DemoController::class.java)
     }
 
     private val webClient = VerticleLifecycle<WebClient>("demo.WebClient").factory {
@@ -45,16 +97,6 @@ class VertexApplication(private val vertx: Vertx) {
         WebClient.create(vertx)
     }.closer {
         logger.info("close WebClient2 ctx=${VertexVerticle.id()}")
-        it.close()
-    }
-
-    private val webClient3 = VerticleLifecycle<WebClient>("demo.WebClient3").asyncFactory {
-        logger.info("create WebClient3 ctx=${VertexVerticle.id()}")
-        Future.future {
-            it.complete(WebClient.create(vertx))
-        }
-    }.closer {
-        logger.info("close WebClient3 ctx=${VertexVerticle.id()}")
         it.close()
     }
 
@@ -76,7 +118,9 @@ class VertexApplication(private val vertx: Vertx) {
     fun hi(): String {
         logger.info("vertex ctx=${VertexVerticle.id()}")
 //        Thread.sleep(100L)
-        logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
+//        logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
+        val persionCount = personCrudRepository.count()
+        logger.info("persionCount: $persionCount")
         logger.info("vertex ctx=${VertexVerticle.id()}")
         return "Hello, World!"
     }
@@ -100,20 +144,6 @@ class VertexApplication(private val vertx: Vertx) {
         "Hello, World!"
     }
 
-    @Bean
-    fun vertexCloser(vertx: Vertx): VertexCloser {
-        return object : VertexCloser {
-            override fun close() {
-                logger.info("close vertex")
-                vertx.close()
-            }
-        }
-    }
-
-//    @Bean
-//    fun redisConnectionFactory(): RedisConnectionFactory {
-//        return LettuceConnectionFactory()
-//    }
 }
 
 fun main(args: Array<String>) {

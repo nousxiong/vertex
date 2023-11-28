@@ -16,7 +16,7 @@ val vertxVersion: String by project
 val jakartaWebsocketVersion: String by project
 
 group = "io.vertex"
-version = "0.0.1"
+version = vertexSpringBootVersion
 java.sourceCompatibility = JavaVersion.valueOf(javaVersion)
 
 val localProperties = Properties().apply {

@@ -15,7 +15,7 @@ val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
 
 group = "io.vertex"
-version = "0.0.1"
+version = vertexSpringBootVersion
 java.sourceCompatibility = JavaVersion.valueOf(javaVersion)
 
 val localProperties = Properties().apply {

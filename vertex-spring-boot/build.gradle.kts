@@ -94,7 +94,7 @@ dependencies {
 	//#endregion vertex.web
 	//#region vertex.data
 	implementation("org.springframework.data:spring-data-commons")
-//	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 //	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 //	runtimeOnly("com.mysql:mysql-connector-j")
 //	runtimeOnly("io.asyncer:r2dbc-mysql")
@@ -109,7 +109,6 @@ dependencies {
 	testImplementation("com.ninja-squad:springmockk:$springmockkVersion")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation(kotlin("test"))
-	testImplementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 }
 
 tasks.getByName<Jar>("jar") {

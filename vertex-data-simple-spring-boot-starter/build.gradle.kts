@@ -13,7 +13,6 @@ plugins {
 val javaVersion: String by project
 val kotlinJvmTarget: String by project
 val vertexSpringBootVersion: String by project
-val vertxVersion: String by project
 
 group = "io.vertex"
 version = vertexSpringBootVersion
@@ -62,12 +61,10 @@ repositories {
 }
 
 dependencies {
-	api(project(":vertex-spring-boot-starter"))
-	api("org.springframework.boot:spring-boot-starter-webflux") {
-		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
-	}
-	api("io.vertx:vertx-web:$vertxVersion")
-	api("io.vertx:vertx-web-client:$vertxVersion")
+	api("org.springframework.boot:spring-boot-starter")
+	api(project(":vertex-spring-boot"))
+	api("org.springframework.boot:spring-boot-starter-data-redis")
+	api("org.springframework.data:spring-data-commons")
 }
 
 tasks.getByName<Jar>("jar") {

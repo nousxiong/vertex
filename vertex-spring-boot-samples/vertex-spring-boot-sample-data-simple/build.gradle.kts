@@ -7,13 +7,13 @@ plugins {
 	id("io.spring.dependency-management")
 	kotlin("jvm")
 	kotlin("plugin.spring")
-	id("maven-publish")
 }
 
 val javaVersion: String by project
 val kotlinJvmTarget: String by project
 val vertexSpringBootVersion: String by project
 val vertxVersion: String by project
+val jakartaWebsocketVersion: String by project
 
 group = "io.vertex"
 version = vertexSpringBootVersion
@@ -25,30 +25,6 @@ val localProperties = Properties().apply {
 val codingArtifactsRepoUrl = localProperties["codingArtifactsRepoUrl"] as String
 val codingArtifactsUsername = localProperties["codingArtifactsUsername"] as String
 val codingArtifactsPassword = localProperties["codingArtifactsPassword"] as String
-
-configurations {
-	compileOnly {
-		extendsFrom(configurations.annotationProcessor.get())
-	}
-}
-
-// 发布项目jar到coding仓库
-publishing {
-	repositories {
-		maven {
-			url = uri(codingArtifactsRepoUrl)
-			credentials {
-				username = codingArtifactsUsername
-				password = codingArtifactsPassword
-			}
-		}
-	}
-	publications {
-		create<MavenPublication>("maven") {
-			from(components["java"])
-		}
-	}
-}
 
 repositories {
 	maven {
@@ -62,16 +38,9 @@ repositories {
 }
 
 dependencies {
-	api(project(":vertex-spring-boot-starter"))
-	api("org.springframework.boot:spring-boot-starter-webflux") {
-		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
-	}
-	api("io.vertx:vertx-web:$vertxVersion")
-	api("io.vertx:vertx-web-client:$vertxVersion")
-}
-
-tasks.getByName<Jar>("jar") {
-	archiveClassifier.set("")
+	implementation(project(":vertex-web-spring-boot-starter"))
+	implementation(project(":vertex-data-simple-spring-boot-starter"))
+	testImplementation(project(":vertex-web-test-spring-boot-starter"))
 }
 
 tasks.withType<KotlinCompile> {
@@ -83,4 +52,17 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<JavaCompile> {
 	options.encoding = "UTF-8"
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
+
+	// 为了去掉仅执行部分测试而报的警告：tests were Method or class mismatch
+	// 方案见：https://stackoverflow.com/questions/66586272/running-a-single-junit5-test-on-gradle-exits-with-standard-error
+	systemProperty("java.util.logging.config.file", "${project.layout.buildDirectory}/resources/test/logging-test.properties")
+	setForkEvery(1)
+
+	testLogging {
+		showStandardStreams = true
+	}
 }
