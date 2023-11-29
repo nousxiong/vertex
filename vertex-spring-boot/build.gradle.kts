@@ -94,7 +94,7 @@ dependencies {
 	//#endregion vertex.web
 	//#region vertex.data
 	implementation("org.springframework.data:spring-data-commons")
-	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+//	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 //	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 //	runtimeOnly("com.mysql:mysql-connector-j")
 //	runtimeOnly("io.asyncer:r2dbc-mysql")
