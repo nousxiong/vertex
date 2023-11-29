@@ -25,8 +25,10 @@ import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.ListCrudRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @SpringBootApplication
 @EnableRedisRepositories(basePackages = ["io.vertex.sample.data.simple"])
@@ -78,6 +80,11 @@ class SampleDataSimpleApplication(private val vertx: Vertx) {
 	fun <T> sampleSave(): SampleSave<T> {
 		return KSampleSaveImpl()
 	}
+
+	@Bean
+	fun <T : Any, ID> sampleCrud(): SampleCrud<T, ID> {
+		return KSampleCrudImpl()
+	}
 }
 
 @RedisHash("person")
@@ -111,8 +118,35 @@ class KSampleSaveImpl<T> : SampleSave<T> {
 	}
 }
 
+class KSampleCrudImpl<T : Any, ID> : SampleCrud<T, ID> {
+	companion object {
+		val logger: Logger = LoggerFactory.getLogger(KSampleCrudImpl::class.java)
+	}
+
+	override fun <S : T> save(entity: S): S {
+		logger.info("KSampleCrudImpl.save")
+		return entity
+	}
+
+	override fun findById(id: ID): Optional<T> {
+		logger.info("KSampleCrudImpl.findById")
+		return Optional.empty()
+	}
+
+	override fun existsById(id: ID): Boolean {
+		logger.info("KSampleCrudImpl.existsById")
+		return false
+	}
+
+	override fun count(): Long {
+		logger.info("KSampleCrudImpl.count")
+		return 0
+	}
+
+}
+
 //interface PersonCrudRepository : CrudRepository<Person, Long>
-interface PersonCrudRepository : CrudRepository<Person, Long>, SampleSave<Person>
+interface PersonCrudRepository : CrudRepository<Person, Long>, SampleCrud<Person, Long>
 
 @RestController
 class SampleDataSimpleController(
@@ -129,8 +163,8 @@ class SampleDataSimpleController(
 		personCrudRepository.save(Person("1", "xiong", "xiaolong2"))
 		val persionCount = personCrudRepository.count()
 		logger.info("persionCount: $persionCount")
-		val persion = personCrudRepository.findById(1L)
-		logger.info("persion: ${persion.get().firstname}")
+		val persion = personCrudRepository.findByIdOrNull(1L)
+		logger.info("persion: ${persion?.firstname}")
 		logger.info("vertex ctx=${VertexVerticle.id()}")
 		return "hello world!"
 	}
