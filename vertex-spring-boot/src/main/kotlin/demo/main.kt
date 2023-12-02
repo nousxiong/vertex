@@ -14,15 +14,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
-import org.springframework.data.annotation.Id
-import org.springframework.data.redis.connection.RedisConnectionFactory
-import org.springframework.data.redis.connection.RedisPassword
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-import org.springframework.data.redis.core.RedisHash
-import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
-import org.springframework.data.repository.CrudRepository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -31,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController
  * Created by xiongxl in 2023/6/16
  */
 @SpringBootApplication
-@EnableRedisRepositories
 @RestController
 class VertexApplication(
     private val vertx: Vertx
@@ -49,36 +39,11 @@ class VertexApplication(
             }
         }
     }
-
-    @Bean
-    fun redisConnectionFactory(): RedisConnectionFactory {
-        val redisCfg = RedisStandaloneConfiguration("bj-crs-hbcc149a.sql.tencentcdb.com", 23110).apply {
-            password = RedisPassword.of("APsM5NqeIWU")
-        }
-        return LettuceConnectionFactory(redisCfg)
-    }
-
-    @Bean
-    fun redisTemplate(redisConnectionFactory: RedisConnectionFactory): RedisTemplate<*, *> {
-        val template = RedisTemplate<ByteArray, ByteArray>()
-        template.connectionFactory = redisConnectionFactory
-        return template
-    }
 }
-
-@RedisHash("person")
-class Person(
-    @Id val id: String,
-    val firstname: String,
-    val lastname: String,
-)
-
-interface PersonCrudRepository : CrudRepository<Person, Long>
 
 @RestController
 class DemoController(
-    private val vertx: Vertx,
-    private val personCrudRepository: PersonCrudRepository
+    private val vertx: Vertx
 ) {
     companion object {
         val logger: Logger = LoggerFactory.getLogger(DemoController::class.java)
@@ -117,10 +82,6 @@ class DemoController(
     @GetMapping("/hi")
     fun hi(): String {
         logger.info("vertex ctx=${VertexVerticle.id()}")
-//        Thread.sleep(100L)
-//        logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
-        val persionCount = personCrudRepository.count()
-        logger.info("persionCount: $persionCount")
         logger.info("vertex ctx=${VertexVerticle.id()}")
         return "Hello, World!"
     }

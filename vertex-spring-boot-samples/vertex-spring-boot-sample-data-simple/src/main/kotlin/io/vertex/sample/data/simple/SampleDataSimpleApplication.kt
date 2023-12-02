@@ -89,9 +89,15 @@ class SampleDataSimpleApplication(private val vertx: Vertx) {
 
 @RedisHash("person")
 class Person(
-	@Id val id: String,
+	@Id val id: Long,
 	val firstname: String,
 	val lastname: String,
+)
+
+@RedisHash("car")
+class Car(
+	@Id val id: Long,
+	val name: String,
 )
 
 //interface RtwbSave<T> {
@@ -124,17 +130,17 @@ class KSampleCrudImpl<T : Any, ID> : SampleCrud<T, ID> {
 	}
 
 	override fun <S : T> save(entity: S): S {
-		logger.info("KSampleCrudImpl.save")
+		logger.info("KSampleCrudImpl.save $entity")
 		return entity
 	}
 
 	override fun findById(id: ID): Optional<T> {
-		logger.info("KSampleCrudImpl.findById")
+		logger.info("KSampleCrudImpl.findById $id")
 		return Optional.empty()
 	}
 
 	override fun existsById(id: ID): Boolean {
-		logger.info("KSampleCrudImpl.existsById")
+		logger.info("KSampleCrudImpl.existsById $id")
 		return false
 	}
 
@@ -147,11 +153,13 @@ class KSampleCrudImpl<T : Any, ID> : SampleCrud<T, ID> {
 
 //interface PersonCrudRepository : CrudRepository<Person, Long>
 interface PersonCrudRepository : CrudRepository<Person, Long>, SampleCrud<Person, Long>
+interface CarCrudRepository : CrudRepository<Car, Long>, SampleCrud<Car, Long>
 
 @RestController
 class SampleDataSimpleController(
 	private val vertx: Vertx,
-	private val personCrudRepository: PersonCrudRepository
+	private val personCrudRepository: PersonCrudRepository,
+	private val carCrudRepository: CarCrudRepository,
 ) {
 	companion object {
 		val logger: Logger = LoggerFactory.getLogger(SampleDataSimpleController::class.java)
@@ -160,11 +168,14 @@ class SampleDataSimpleController(
 	@GetMapping("/hello")
 	fun hello(): String {
 		logger.info("vertex ctx=${VertexVerticle.id()}")
-		personCrudRepository.save(Person("1", "xiong", "xiaolong2"))
+		personCrudRepository.save(Person(10L, "xiong", "xiaolong"))
+		carCrudRepository.save(Car(20L, "benz"))
 		val persionCount = personCrudRepository.count()
-		logger.info("persionCount: $persionCount")
+		val carCount = carCrudRepository.count()
+		logger.info("persionCount: $persionCount carCount: $carCount")
 		val persion = personCrudRepository.findByIdOrNull(1L)
-		logger.info("persion: ${persion?.firstname}")
+		val car = carCrudRepository.findByIdOrNull(1L)
+		logger.info("persion: ${persion?.firstname} car: ${car?.name}")
 		logger.info("vertex ctx=${VertexVerticle.id()}")
 		return "hello world!"
 	}
