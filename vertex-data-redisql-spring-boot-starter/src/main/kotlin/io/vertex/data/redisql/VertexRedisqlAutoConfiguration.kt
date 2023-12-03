@@ -1,4 +1,4 @@
-package io.vertex.data.rtwb
+package io.vertex.data.redisql
 
 import io.vertex.autoconfigure.data.rtwb.VertexRtwbAutoConfiguration
 import io.vertex.autoconfigure.data.rtwb.service.PrimaryDataService
@@ -18,7 +18,7 @@ import org.springframework.data.repository.CrudRepository
 @AutoConfiguration(before = [VertexRtwbAutoConfiguration::class])
 @ConditionalOnClass(CrudRepository::class)
 @ConditionalOnBean(Vertx::class)
-class VertexSimplexAutoConfiguration {
+class VertexRedisqlAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun <T, ID> primaryDataService(): PrimaryDataService<T, ID> {

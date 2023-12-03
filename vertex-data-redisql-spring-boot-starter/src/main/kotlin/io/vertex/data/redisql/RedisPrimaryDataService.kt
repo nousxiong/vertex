@@ -1,4 +1,4 @@
-package io.vertex.data.rtwb
+package io.vertex.data.redisql
 
 import io.vertex.autoconfigure.data.rtwb.service.PrimaryDataService
 
