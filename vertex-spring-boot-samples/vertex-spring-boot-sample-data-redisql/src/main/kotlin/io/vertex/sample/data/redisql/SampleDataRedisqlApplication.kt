@@ -7,6 +7,8 @@ import io.vertex.autoconfigure.data.rtwb.service.BehindDataService
 import io.vertex.autoconfigure.data.rtwb.service.PrimaryDataService
 import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticleFactory
+import io.vertex.data.redisql.RedisqlKeyValueMap
+import io.vertex.data.redisql.VertexRedisqlAutoConfiguration
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServerOptions
@@ -14,24 +16,34 @@ import io.vertx.ext.web.RoutingContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.data.annotation.Id
-import org.springframework.data.redis.connection.RedisConnectionFactory
-import org.springframework.data.redis.connection.RedisPassword
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-import org.springframework.data.redis.core.RedisHash
-import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
+import org.springframework.data.keyvalue.annotation.KeySpace
+import org.springframework.data.keyvalue.core.KeyValueAdapter
+import org.springframework.data.keyvalue.core.KeyValueOperations
+import org.springframework.data.keyvalue.core.KeyValueTemplate
+import org.springframework.data.keyvalue.repository.KeyValueRepository
+import org.springframework.data.map.MapKeyValueAdapter
+import org.springframework.data.map.repository.config.EnableMapRepositories
+//import org.springframework.data.redis.connection.RedisConnectionFactory
+//import org.springframework.data.redis.connection.RedisPassword
+//import org.springframework.data.redis.connection.RedisStandaloneConfiguration
+//import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+//import org.springframework.data.redis.core.RedisHash
+//import org.springframework.data.redis.core.RedisTemplate
+//import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
 import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
 @SpringBootApplication
-@EnableRedisRepositories(basePackages = ["io.vertex.sample.data.redisql"])
+//@EnableRedisRepositories(basePackages = ["io.vertex.sample.data.redisql"])
+@EnableMapRepositories(keyValueTemplateRef = "mapKeyValueTemplate2")
 class SampleDataRedisqlApplication(private val vertx: Vertx) {
 	companion object {
 		val logger: Logger = LoggerFactory.getLogger(SampleDataRedisqlApplication::class.java)
@@ -61,20 +73,36 @@ class SampleDataRedisqlApplication(private val vertx: Vertx) {
 		}
 	}
 
-	@Bean
-	fun redisConnectionFactory(): RedisConnectionFactory {
-		val redisCfg = RedisStandaloneConfiguration("bj-crs-hbcc149a.sql.tencentcdb.com", 23110).apply {
-			password = RedisPassword.of("APsM5NqeIWU")
-		}
-		return LettuceConnectionFactory(redisCfg)
-	}
+//	@Bean
+////	@ConditionalOnMissingBean
+//	fun mapKeyValueTemplate(keyValueAdapter: KeyValueAdapter): KeyValueOperations {
+//		logger.info("mapKeyValueTemplate2")
+//		return KeyValueTemplate(keyValueAdapter)
+//	}
 
-	@Bean
-	fun redisTemplate(redisConnectionFactory: RedisConnectionFactory): RedisTemplate<*, *> {
-		val template = RedisTemplate<ByteArray, ByteArray>()
-		template.connectionFactory = redisConnectionFactory
-		return template
-	}
+//	@Bean
+////	@ConditionalOnMissingBean
+//	fun keyValueAdapter(): KeyValueAdapter {
+//		logger.info("keyValueAdapter2")
+//		return MapKeyValueAdapter(hashMapOf<String?, MutableMap<Any, Any>?>().apply {
+//			put("persons", RedisqlKeyValueMap())
+//		})
+//	}
+
+//	@Bean
+//	fun redisConnectionFactory(): RedisConnectionFactory {
+//		val redisCfg = RedisStandaloneConfiguration("bj-crs-hbcc149a.sql.tencentcdb.com", 23110).apply {
+//			password = RedisPassword.of("APsM5NqeIWU")
+//		}
+//		return LettuceConnectionFactory(redisCfg)
+//	}
+//
+//	@Bean
+//	fun redisTemplate(redisConnectionFactory: RedisConnectionFactory): RedisTemplate<*, *> {
+//		val template = RedisTemplate<ByteArray, ByteArray>()
+//		template.connectionFactory = redisConnectionFactory
+//		return template
+//	}
 
 	@Bean
 	fun <T> sampleSave(): SampleSave<T> {
@@ -87,14 +115,15 @@ class SampleDataRedisqlApplication(private val vertx: Vertx) {
 	}
 }
 
-@RedisHash("person")
+//@RedisHash("person")
+@KeySpace("persons")
 class Person(
 	@Id val id: Long,
 	val firstname: String,
 	val lastname: String,
 )
 
-@RedisHash("car")
+@KeySpace("car")
 class Car(
 	@Id val id: Long,
 	val name: String,
@@ -151,19 +180,19 @@ class KSampleCrudImpl<T : Any, ID> : SampleCrud<T, ID> {
 
 }
 
-interface PersonCrudRepository : CrudRepository<Person, Long>
-interface PersonCrudRepository2 : CrudRepository<Person, Long>
+interface PersonCrudRepository : KeyValueRepository<Person, Long>
+//interface PersonCrudRepository2 : CrudRepository<Person, Long>
 //interface PersonCrudRepository : CrudRepository<Person, Long>, SampleCrud<Person, Long>
 //interface CarCrudRepository : CrudRepository<Car, Long>, SampleCrud<Car, Long>
 
 @RestController
 class SampleDataRedisqlController(
 	private val vertx: Vertx,
-	private val primaryDataService: PrimaryDataService<Person, Long>,
-	private val carDataService: PrimaryDataService<Car, Long>,
-	private val behindDataService: BehindDataService<Person, Long>,
+//	private val primaryDataService: PrimaryDataService<Person, Long>,
+//	private val carDataService: PrimaryDataService<Car, Long>,
+//	private val behindDataService: BehindDataService<Person, Long>,
 	private val personCrudRepository: PersonCrudRepository,
-	private val personCrudRepository2: PersonCrudRepository2,
+//	private val personCrudRepository2: PersonCrudRepository2,
 //	private val carCrudRepository: CarCrudRepository,
 ) {
 	companion object {
@@ -173,6 +202,7 @@ class SampleDataRedisqlController(
 	@GetMapping("/hello")
 	fun hello(): String {
 		logger.info("vertex ctx=${VertexVerticle.id()}")
+		personCrudRepository.save(Person(2L, "xiong2", "xiaolong2"))
 //		personCrudRepository.save(Person(10L, "xiong", "xiaolong"))
 //		carCrudRepository.save(Car(20L, "benz"))
 //		val persionCount = personCrudRepository.count()
@@ -187,11 +217,11 @@ class SampleDataRedisqlController(
 
 	@GetMapping("/hi")
 	fun hi(): String {
-		logger.info("vertex ctx=${VertexVerticle.id()}, primaryDataService=$primaryDataService")
-		logger.info("vertex ctx=${VertexVerticle.id()}, carDataService=$carDataService")
-		primaryDataService.status(Person(10L, "xiong", "xiaolong"))
-		carDataService.status(Car(20L, "benz"))
-		logger.info("vertex ctx=${VertexVerticle.id()}, behindDataService=$behindDataService")
+//		logger.info("vertex ctx=${VertexVerticle.id()}, primaryDataService=$primaryDataService")
+//		logger.info("vertex ctx=${VertexVerticle.id()}, carDataService=$carDataService")
+////		primaryDataService.status(Person(10L, "xiong", "xiaolong"))
+////		carDataService.status(Car(20L, "benz"))
+//		logger.info("vertex ctx=${VertexVerticle.id()}, behindDataService=$behindDataService")
 		return "hi, world!"
 	}
 }
