@@ -151,17 +151,20 @@ class KSampleCrudImpl<T : Any, ID> : SampleCrud<T, ID> {
 
 }
 
-//interface PersonCrudRepository : CrudRepository<Person, Long>
-interface PersonCrudRepository : CrudRepository<Person, Long>, SampleCrud<Person, Long>
-interface CarCrudRepository : CrudRepository<Car, Long>, SampleCrud<Car, Long>
+interface PersonCrudRepository : CrudRepository<Person, Long>
+interface PersonCrudRepository2 : CrudRepository<Person, Long>
+//interface PersonCrudRepository : CrudRepository<Person, Long>, SampleCrud<Person, Long>
+//interface CarCrudRepository : CrudRepository<Car, Long>, SampleCrud<Car, Long>
 
 @RestController
 class SampleDataRedisqlController(
 	private val vertx: Vertx,
 	private val primaryDataService: PrimaryDataService<Person, Long>,
+	private val carDataService: PrimaryDataService<Car, Long>,
 	private val behindDataService: BehindDataService<Person, Long>,
 	private val personCrudRepository: PersonCrudRepository,
-	private val carCrudRepository: CarCrudRepository,
+	private val personCrudRepository2: PersonCrudRepository2,
+//	private val carCrudRepository: CarCrudRepository,
 ) {
 	companion object {
 		val logger: Logger = LoggerFactory.getLogger(SampleDataRedisqlController::class.java)
@@ -170,14 +173,14 @@ class SampleDataRedisqlController(
 	@GetMapping("/hello")
 	fun hello(): String {
 		logger.info("vertex ctx=${VertexVerticle.id()}")
-		personCrudRepository.save(Person(10L, "xiong", "xiaolong"))
-		carCrudRepository.save(Car(20L, "benz"))
-		val persionCount = personCrudRepository.count()
-		val carCount = carCrudRepository.count()
-		logger.info("persionCount: $persionCount carCount: $carCount")
-		val persion = personCrudRepository.findByIdOrNull(1L)
-		val car = carCrudRepository.findByIdOrNull(1L)
-		logger.info("persion: ${persion?.firstname} car: ${car?.name}")
+//		personCrudRepository.save(Person(10L, "xiong", "xiaolong"))
+//		carCrudRepository.save(Car(20L, "benz"))
+//		val persionCount = personCrudRepository.count()
+//		val carCount = carCrudRepository.count()
+//		logger.info("persionCount: $persionCount carCount: $carCount")
+//		val persion = personCrudRepository.findByIdOrNull(1L)
+//		val car = carCrudRepository.findByIdOrNull(1L)
+//		logger.info("persion: ${persion?.firstname} car: ${car?.name}")
 		logger.info("vertex ctx=${VertexVerticle.id()}")
 		return "hello world!"
 	}
@@ -185,6 +188,9 @@ class SampleDataRedisqlController(
 	@GetMapping("/hi")
 	fun hi(): String {
 		logger.info("vertex ctx=${VertexVerticle.id()}, primaryDataService=$primaryDataService")
+		logger.info("vertex ctx=${VertexVerticle.id()}, carDataService=$carDataService")
+		primaryDataService.status(Person(10L, "xiong", "xiaolong"))
+		carDataService.status(Car(20L, "benz"))
 		logger.info("vertex ctx=${VertexVerticle.id()}, behindDataService=$behindDataService")
 		return "hi, world!"
 	}

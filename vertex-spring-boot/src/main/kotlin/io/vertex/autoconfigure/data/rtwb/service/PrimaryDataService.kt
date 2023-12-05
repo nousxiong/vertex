@@ -4,4 +4,5 @@ package io.vertex.autoconfigure.data.rtwb.service
  * Created by xiongxl in 2023/11/30
  */
 interface PrimaryDataService<T, ID> {
+    fun status(entity: T)
 }
