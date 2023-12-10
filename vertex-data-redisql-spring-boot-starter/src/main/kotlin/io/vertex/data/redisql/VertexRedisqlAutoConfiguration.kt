@@ -16,14 +16,16 @@ import org.springframework.data.keyvalue.core.KeyValueOperations
 import org.springframework.data.keyvalue.core.KeyValueTemplate
 import org.springframework.data.map.MapKeyValueAdapter
 import org.springframework.data.repository.CrudRepository
-import java.util.concurrent.ConcurrentHashMap
 
 
 /**
  * Created by xiongxl in 2023/12/3
  */
 @Configuration
-@AutoConfiguration(before = [VertexRtwbAutoConfiguration::class])
+@AutoConfiguration(
+    before = [VertexRtwbAutoConfiguration::class],
+//    beforeName = ["org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration"]
+)
 @ConditionalOnClass(CrudRepository::class)
 @ConditionalOnBean(Vertx::class)
 class VertexRedisqlAutoConfiguration {

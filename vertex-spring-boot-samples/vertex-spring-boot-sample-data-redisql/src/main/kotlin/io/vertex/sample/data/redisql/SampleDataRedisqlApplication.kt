@@ -7,6 +7,7 @@ import io.vertex.autoconfigure.data.rtwb.service.BehindDataService
 import io.vertex.autoconfigure.data.rtwb.service.PrimaryDataService
 import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticleFactory
+import io.vertex.data.redisql.EnableRedisqlRepositories
 import io.vertex.data.redisql.RedisqlKeyValueMap
 import io.vertex.data.redisql.VertexRedisqlAutoConfiguration
 import io.vertx.core.Handler
@@ -27,13 +28,12 @@ import org.springframework.data.keyvalue.core.KeyValueTemplate
 import org.springframework.data.keyvalue.repository.KeyValueRepository
 import org.springframework.data.map.MapKeyValueAdapter
 import org.springframework.data.map.repository.config.EnableMapRepositories
-//import org.springframework.data.redis.connection.RedisConnectionFactory
-//import org.springframework.data.redis.connection.RedisPassword
-//import org.springframework.data.redis.connection.RedisStandaloneConfiguration
-//import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-//import org.springframework.data.redis.core.RedisHash
-//import org.springframework.data.redis.core.RedisTemplate
-//import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
+import org.springframework.data.redis.connection.RedisConnectionFactory
+import org.springframework.data.redis.connection.RedisPassword
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.findByIdOrNull
@@ -42,8 +42,13 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
 @SpringBootApplication
-//@EnableRedisRepositories(basePackages = ["io.vertex.sample.data.redisql"])
-@EnableMapRepositories(keyValueTemplateRef = "mapKeyValueTemplate2")
+@EnableRedisqlRepositories
+//@EnableRedisRepositories(basePackages = ["io.vertex.sample.data.redis"])
+//@EnableMapRepositories(keyValueTemplateRef = "mapKeyValueTemplate2")
+//@EnableMapRepositories(
+//	basePackages = ["io.vertex.sample.data.redisql"],
+//	keyValueTemplateRef = "mapKeyValueTemplate2"
+//)
 class SampleDataRedisqlApplication(private val vertx: Vertx) {
 	companion object {
 		val logger: Logger = LoggerFactory.getLogger(SampleDataRedisqlApplication::class.java)
@@ -74,35 +79,33 @@ class SampleDataRedisqlApplication(private val vertx: Vertx) {
 	}
 
 //	@Bean
-////	@ConditionalOnMissingBean
-//	fun mapKeyValueTemplate(keyValueAdapter: KeyValueAdapter): KeyValueOperations {
+//	fun mapKeyValueTemplate2(keyValueAdapter: KeyValueAdapter): KeyValueOperations {
 //		logger.info("mapKeyValueTemplate2")
 //		return KeyValueTemplate(keyValueAdapter)
 //	}
-
+//
 //	@Bean
-////	@ConditionalOnMissingBean
 //	fun keyValueAdapter(): KeyValueAdapter {
 //		logger.info("keyValueAdapter2")
 //		return MapKeyValueAdapter(hashMapOf<String?, MutableMap<Any, Any>?>().apply {
 //			put("persons", RedisqlKeyValueMap())
 //		})
 //	}
-
-//	@Bean
-//	fun redisConnectionFactory(): RedisConnectionFactory {
-//		val redisCfg = RedisStandaloneConfiguration("bj-crs-hbcc149a.sql.tencentcdb.com", 23110).apply {
-//			password = RedisPassword.of("APsM5NqeIWU")
-//		}
-//		return LettuceConnectionFactory(redisCfg)
-//	}
 //
-//	@Bean
-//	fun redisTemplate(redisConnectionFactory: RedisConnectionFactory): RedisTemplate<*, *> {
-//		val template = RedisTemplate<ByteArray, ByteArray>()
-//		template.connectionFactory = redisConnectionFactory
-//		return template
-//	}
+	@Bean
+	fun redisConnectionFactory(): RedisConnectionFactory {
+		val redisCfg = RedisStandaloneConfiguration("bj-crs-hbcc149a.sql.tencentcdb.com", 23110).apply {
+			password = RedisPassword.of("APsM5NqeIWU")
+		}
+		return LettuceConnectionFactory(redisCfg)
+	}
+
+	@Bean
+	fun redisTemplate(redisConnectionFactory: RedisConnectionFactory): RedisTemplate<*, *> {
+		val template = RedisTemplate<ByteArray, ByteArray>()
+		template.connectionFactory = redisConnectionFactory
+		return template
+	}
 
 	@Bean
 	fun <T> sampleSave(): SampleSave<T> {

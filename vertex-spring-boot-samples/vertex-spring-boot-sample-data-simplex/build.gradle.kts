@@ -40,6 +40,7 @@ repositories {
 dependencies {
 	implementation(project(":vertex-web-spring-boot-starter"))
 	implementation(project(":vertex-data-simplex-spring-boot-starter"))
+	implementation("org.springframework.data:spring-data-redis")
 	testImplementation(project(":vertex-web-test-spring-boot-starter"))
 }
 
