@@ -62,9 +62,10 @@ repositories {
 
 dependencies {
 	api(project(":vertex-spring-boot-starter"))
-//	api("org.springframework.boot:spring-boot-starter-data-redis")
-	implementation("org.springframework.data:spring-data-redis")
-	api("org.springframework.data:spring-data-keyvalue")
+	api("org.springframework.boot:spring-boot-starter-data-redis")
+	api("org.springframework.boot:spring-boot-starter-data-jdbc")
+//	implementation("org.springframework.data:spring-data-redis")
+//	api("org.springframework.data:spring-data-keyvalue")
 }
 
 tasks.getByName<Jar>("jar") {
