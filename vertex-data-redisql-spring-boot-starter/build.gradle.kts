@@ -64,6 +64,7 @@ dependencies {
 	api(project(":vertex-spring-boot-starter"))
 	api("org.springframework.boot:spring-boot-starter-data-redis")
 	api("org.springframework.boot:spring-boot-starter-data-jdbc")
+	runtimeOnly("com.mysql:mysql-connector-j")
 //	implementation("org.springframework.data:spring-data-redis")
 //	api("org.springframework.data:spring-data-keyvalue")
 }
