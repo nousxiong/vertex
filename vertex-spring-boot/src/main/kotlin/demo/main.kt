@@ -1,14 +1,17 @@
 package demo
 
-//import org.springframework.data.redis.connection.RedisConnectionFactory
-//import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-//import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
+import io.vertex.autoconfigure.core.GracefulShutdown
 import io.vertex.autoconfigure.core.VertexCloser
 import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.core.VerticleLifecycle
+import io.vertex.autoconfigure.web.server.VertexServerVerticle
+import io.vertex.autoconfigure.web.server.VertexServerVerticleFactory
 import io.vertex.util.verticleScope
 import io.vertx.core.Future
+import io.vertx.core.Handler
 import io.vertx.core.Vertx
+import io.vertx.core.http.HttpServerOptions
+import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.coAwait
 import kotlinx.coroutines.delay
@@ -19,17 +22,53 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import kotlin.time.measureTimedValue
 
 
 /**
  * Created by xiongxl in 2023/6/16
  */
 @SpringBootApplication
-//@EnableRedisRepositories
 @RestController
-class VertexApplication(private val vertx: Vertx) {
+class VertexApplication(
+    private val vertx: Vertx
+) {
     companion object {
         val logger: Logger = LoggerFactory.getLogger(VertexApplication::class.java)
+    }
+
+    @Bean
+    fun vertexCloser(vertx: Vertx): VertexCloser {
+        return object : VertexCloser {
+            override fun close() {
+                logger.info("close vertex")
+                vertx.close()
+            }
+        }
+    }
+
+
+    @Bean
+    fun serverVerticleFactory(): VertexServerVerticleFactory {
+        return object : VertexServerVerticleFactory {
+            override fun create(
+                index: Int,
+                httpServerOptions: HttpServerOptions,
+                handler: Handler<RoutingContext>,
+                gracefulShutdown: GracefulShutdown?
+            ): VertexServerVerticle {
+                return VtServerVerticle(index, httpServerOptions, handler, gracefulShutdown)
+            }
+        }
+    }
+}
+
+@RestController
+class DemoController(
+    private val vertx: Vertx
+) {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(DemoController::class.java)
     }
 
     private val webClient = VerticleLifecycle<WebClient>("demo.WebClient").factory {
@@ -45,16 +84,6 @@ class VertexApplication(private val vertx: Vertx) {
         WebClient.create(vertx)
     }.closer {
         logger.info("close WebClient2 ctx=${VertexVerticle.id()}")
-        it.close()
-    }
-
-    private val webClient3 = VerticleLifecycle<WebClient>("demo.WebClient3").asyncFactory {
-        logger.info("create WebClient3 ctx=${VertexVerticle.id()}")
-        Future.future {
-            it.complete(WebClient.create(vertx))
-        }
-    }.closer {
-        logger.info("close WebClient3 ctx=${VertexVerticle.id()}")
         it.close()
     }
 
@@ -75,8 +104,6 @@ class VertexApplication(private val vertx: Vertx) {
     @GetMapping("/hi")
     fun hi(): String {
         logger.info("vertex ctx=${VertexVerticle.id()}")
-//        Thread.sleep(100L)
-        logger.info("baidu size: ${getUrlSize("www.baidu.com")}")
         logger.info("vertex ctx=${VertexVerticle.id()}")
         return "Hello, World!"
     }
@@ -100,20 +127,50 @@ class VertexApplication(private val vertx: Vertx) {
         "Hello, World!"
     }
 
-    @Bean
-    fun vertexCloser(vertx: Vertx): VertexCloser {
-        return object : VertexCloser {
-            override fun close() {
-                logger.info("close vertex")
-                vertx.close()
-            }
-        }
+}
+
+/**
+ * 2024/2/19 测试Java21的虚拟线程运行Kt的协程情况
+ * 1、两者可以同时存在（协程运行在vt上）
+ * 2、默认情况下（Vertx.CoroutineVerticle），用vt运行协程时，协程挂起恢复后的vt可能和之前不是一个
+ * ├── 2.1、尽量直接使用Java21的虚拟线程运行io代码，而非协程
+ * └── 2.2、协程仅用于兼容带有协程的Kotlin代码用
+ */
+class VtServerVerticle(
+    index: Int,
+    httpServerOptions: HttpServerOptions,
+    requestHandler: Handler<RoutingContext>,
+    gracefulShutdown: GracefulShutdown?,
+) : VertexServerVerticle(index, httpServerOptions, requestHandler, gracefulShutdown) {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(VtServerVerticle::class.java)
+    }
+    override suspend fun start() {
+        super.start()
+
+        getBaiduUrlSize()
+        getBaiduUrlSizeAwait()
     }
 
-//    @Bean
-//    fun redisConnectionFactory(): RedisConnectionFactory {
-//        return LettuceConnectionFactory()
-//    }
+    private fun getBaiduUrlSize() {
+        val tvRsp = measureTimedValue {
+            logger.info("start await get baidu url size ctx=${id()}")
+            val client = WebClient.create(vertx)
+            val req = client.get("www.baidu.com", "/")
+            Future.await(req.send())
+        }
+        logger.info("et<${tvRsp.duration}> await baidu size: ${tvRsp.value.bodyAsString().length} ctx=${id()}")
+    }
+
+    private suspend fun getBaiduUrlSizeAwait() {
+        val tvRsp = measureTimedValue {
+            logger.info("start co await get baidu url size ctx=${id()}")
+            val client = WebClient.create(vertx)
+            val req = client.get("www.baidu.com", "/")
+            req.send().coAwait()
+        }
+        logger.info("et<${tvRsp.duration}> co await baidu size: ${tvRsp.value.bodyAsString().length} ctx=${id()}")
+    }
 }
 
 fun main(args: Array<String>) {
