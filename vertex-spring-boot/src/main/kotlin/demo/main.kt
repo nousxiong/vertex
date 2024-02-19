@@ -1,11 +1,17 @@
 package demo
 
+import io.vertex.autoconfigure.core.GracefulShutdown
 import io.vertex.autoconfigure.core.VertexCloser
 import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.core.VerticleLifecycle
+import io.vertex.autoconfigure.web.server.VertexServerVerticle
+import io.vertex.autoconfigure.web.server.VertexServerVerticleFactory
 import io.vertex.util.verticleScope
 import io.vertx.core.Future
+import io.vertx.core.Handler
 import io.vertx.core.Vertx
+import io.vertx.core.http.HttpServerOptions
+import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.coAwait
 import kotlinx.coroutines.delay
@@ -16,6 +22,7 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import kotlin.time.measureTimedValue
 
 
 /**
@@ -36,6 +43,21 @@ class VertexApplication(
             override fun close() {
                 logger.info("close vertex")
                 vertx.close()
+            }
+        }
+    }
+
+
+    @Bean
+    fun serverVerticleFactory(): VertexServerVerticleFactory {
+        return object : VertexServerVerticleFactory {
+            override fun create(
+                index: Int,
+                httpServerOptions: HttpServerOptions,
+                handler: Handler<RoutingContext>,
+                gracefulShutdown: GracefulShutdown?
+            ): VertexServerVerticle {
+                return VtServerVerticle(index, httpServerOptions, handler, gracefulShutdown)
             }
         }
     }
@@ -105,6 +127,50 @@ class DemoController(
         "Hello, World!"
     }
 
+}
+
+/**
+ * 2024/2/19 测试Java21的虚拟线程运行Kt的协程情况
+ * 1、两者可以同时存在（协程运行在vt上）
+ * 2、默认情况下（Vertx.CoroutineVerticle），用vt运行协程时，协程挂起恢复后的vt可能和之前不是一个
+ * ├── 2.1、尽量直接使用Java21的虚拟线程运行io代码，而非协程
+ * └── 2.2、协程仅用于兼容带有协程的Kotlin代码用
+ */
+class VtServerVerticle(
+    index: Int,
+    httpServerOptions: HttpServerOptions,
+    requestHandler: Handler<RoutingContext>,
+    gracefulShutdown: GracefulShutdown?,
+) : VertexServerVerticle(index, httpServerOptions, requestHandler, gracefulShutdown) {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(VtServerVerticle::class.java)
+    }
+    override suspend fun start() {
+        super.start()
+
+        getBaiduUrlSize()
+        getBaiduUrlSizeAwait()
+    }
+
+    private fun getBaiduUrlSize() {
+        val tvRsp = measureTimedValue {
+            logger.info("start await get baidu url size ctx=${id()}")
+            val client = WebClient.create(vertx)
+            val req = client.get("www.baidu.com", "/")
+            Future.await(req.send())
+        }
+        logger.info("et<${tvRsp.duration}> await baidu size: ${tvRsp.value.bodyAsString().length} ctx=${id()}")
+    }
+
+    private suspend fun getBaiduUrlSizeAwait() {
+        val tvRsp = measureTimedValue {
+            logger.info("start co await get baidu url size ctx=${id()}")
+            val client = WebClient.create(vertx)
+            val req = client.get("www.baidu.com", "/")
+            req.send().coAwait()
+        }
+        logger.info("et<${tvRsp.duration}> co await baidu size: ${tvRsp.value.bodyAsString().length} ctx=${id()}")
+    }
 }
 
 fun main(args: Array<String>) {
