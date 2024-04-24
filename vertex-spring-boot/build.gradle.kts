@@ -92,13 +92,7 @@ dependencies {
 	implementation("io.vertx:vertx-web:$vertxVersion")
 	implementation("io.vertx:vertx-web-client:$vertxVersion")
 	//#endregion vertex.web
-	//#region vertex.data
-	implementation("org.springframework.data:spring-data-commons")
-//	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-//	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
-//	runtimeOnly("com.mysql:mysql-connector-j")
-//	runtimeOnly("io.asyncer:r2dbc-mysql")
-	//#endregion vertex.data
+	annotationProcessor("io.vertx:vertx-codegen:$vertxVersion")
 	kapt("org.springframework.boot:spring-boot-autoconfigure-processor")
 	kapt("org.springframework.boot:spring-boot-configuration-processor")
 	testImplementation("org.junit.jupiter:junit-jupiter-api")
@@ -109,7 +103,6 @@ dependencies {
 	testImplementation("com.ninja-squad:springmockk:$springmockkVersion")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation(kotlin("test"))
-	testImplementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 }
 
 tasks.getByName<Jar>("jar") {
