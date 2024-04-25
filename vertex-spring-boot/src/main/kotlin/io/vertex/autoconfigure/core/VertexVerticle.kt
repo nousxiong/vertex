@@ -44,6 +44,10 @@ open class VertexVerticle(
             Vertx.currentContext().put(key, value)
         }
 
+        fun remove(key: String): Boolean {
+            return Vertx.currentContext().remove(key)
+        }
+
         fun <T> get(key: String): T {
             return Vertx.currentContext().get(key)
         }
