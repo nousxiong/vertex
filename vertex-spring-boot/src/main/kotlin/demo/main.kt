@@ -22,6 +22,8 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.reactive.config.ResourceHandlerRegistry
+import org.springframework.web.reactive.config.WebFluxConfigurer
 import kotlin.time.measureTimedValue
 
 
@@ -58,6 +60,16 @@ class VertexApplication(
                 gracefulShutdown: GracefulShutdown?
             ): VertexServerVerticle {
                 return VtServerVerticle(index, httpServerOptions, handler, gracefulShutdown)
+            }
+        }
+    }
+
+    @Bean
+    fun webFluxConfigurer(): WebFluxConfigurer {
+        return object : WebFluxConfigurer {
+            override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+                registry.addResourceHandler("/**")
+                    .addResourceLocations("/public", "classpath:/static/")
             }
         }
     }
@@ -133,8 +145,6 @@ class DemoController(
  * 2024/2/19 测试Java21的虚拟线程运行Kt的协程情况
  * 1、两者可以同时存在（协程运行在vt上）
  * 2、默认情况下（Vertx.CoroutineVerticle），用vt运行协程时，协程挂起恢复后的vt可能和之前不是一个
- * ├── 2.1、尽量直接使用Java21的虚拟线程运行io代码，而非协程
- * └── 2.2、协程仅用于兼容带有协程的Kotlin代码用
  */
 class VtServerVerticle(
     index: Int,
@@ -148,8 +158,8 @@ class VtServerVerticle(
     override suspend fun start() {
         super.start()
 
-        getBaiduUrlSize()
-        getBaiduUrlSizeAwait()
+//        getBaiduUrlSize()
+//        getBaiduUrlSizeAwait()
     }
 
     private fun getBaiduUrlSize() {

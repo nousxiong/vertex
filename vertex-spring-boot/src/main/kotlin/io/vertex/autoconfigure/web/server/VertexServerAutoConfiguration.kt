@@ -18,7 +18,8 @@ import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.ReactiveHttpInputMessage
-import org.springframework.web.reactive.config.WebFluxConfigurationSupport
+import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration
+import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.socket.server.WebSocketService
 import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService
 
@@ -31,7 +32,7 @@ import org.springframework.web.reactive.socket.server.support.HandshakeWebSocket
 @ConditionalOnClass(ReactiveHttpInputMessage::class)
 @ConditionalOnMissingBean(ReactiveWebServerFactory::class)
 @EnableConfigurationProperties(HttpServerProperties::class, ServerDeploymentProperties::class)
-class VertexServerAutoConfiguration : WebFluxConfigurationSupport() {
+class VertexServerAutoConfiguration : DelegatingWebFluxConfiguration() {
 
     @Bean
     fun vertexReactiveWebServerFactory(
@@ -68,6 +69,17 @@ class VertexServerAutoConfiguration : WebFluxConfigurationSupport() {
                 return VertexServerVerticle(index, httpServerOptions, handler, gracefulShutdown)
             }
         }
+    }
+
+    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+        super.addResourceHandlers(registry)
+        registry.addResourceHandler("/**")
+            .addResourceLocations(
+                "classpath:/static/",
+                "classpath:/public/",
+                "classpath:/resources/",
+                "classpath:/META-INF/resources/",
+            )
     }
 
     /**
