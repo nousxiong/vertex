@@ -40,24 +40,23 @@ open class VertexVerticle(
         fun <T : VertexVerticle> current(): T = Vertx.currentContext().get(VERTICLE) as T
         fun <T : VertexVerticle> currentOrNull(): T? = Vertx.currentContext()?.get(VERTICLE) as? T
 
-        fun <T> put(key: String, value: T) {
-            Vertx.currentContext().put(key, value)
+        fun <T> put(key: String, value: T, ctx: Context = Vertx.currentContext()) {
+            ctx.put(key, value)
         }
 
-        fun remove(key: String): Boolean {
-            return Vertx.currentContext().remove(key)
+        fun remove(key: String, ctx: Context = Vertx.currentContext()): Boolean {
+            return ctx.remove(key)
         }
 
-        fun <T> get(key: String): T {
-            return Vertx.currentContext().get(key)
+        fun <T> get(key: String, ctx: Context = Vertx.currentContext()): T {
+            return ctx.get(key)
         }
 
-        fun <T> getOrNull(key: String): T? {
-            return Vertx.currentContext()?.get(key)
+        fun <T> getOrNull(key: String, ctx: Context? = Vertx.currentContext()): T? {
+            return ctx?.get(key)
         }
 
-        fun <T> getOrCreate(key: String, factory: () -> T): T {
-            val ctx = Vertx.currentContext()!!
+        fun <T> getOrCreate(key: String, ctx: Context = Vertx.currentContext(), factory: () -> T): T {
             val value = ctx.get<T>(key)
             if (value != null) return value
             val newValue = factory()
@@ -65,8 +64,7 @@ open class VertexVerticle(
             return newValue
         }
 
-        suspend fun <T> getOrCreateAwait(key: String, awaitFactory: suspend () -> T): T {
-            val ctx = Vertx.currentContext()!!
+        suspend fun <T> getOrCreateAwait(key: String, ctx: Context = Vertx.currentContext(), awaitFactory: suspend () -> T): T {
             val value = ctx.get<T>(key)
             if (value != null) return value
             val newValue = awaitFactory()
@@ -74,8 +72,7 @@ open class VertexVerticle(
             return newValue
         }
 
-        fun <T> getOrCreateAsync(key: String, asyncFactory: () -> Future<T>): Future<T> {
-            val ctx = Vertx.currentContext()!!
+        fun <T> getOrCreateAsync(key: String, ctx: Context = Vertx.currentContext(), asyncFactory: () -> Future<T>): Future<T> {
             val value = ctx.get<T>(key)
             if (value != null) return Future.future { it.complete(value) }
             return asyncFactory().andThen {
