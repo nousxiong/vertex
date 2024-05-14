@@ -72,7 +72,6 @@ class VertexServerAutoConfiguration : DelegatingWebFluxConfiguration() {
     }
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        super.addResourceHandlers(registry)
         registry.addResourceHandler("/**")
             .addResourceLocations(
                 "classpath:/static/",
@@ -80,6 +79,7 @@ class VertexServerAutoConfiguration : DelegatingWebFluxConfiguration() {
                 "classpath:/resources/",
                 "classpath:/META-INF/resources/",
             )
+        super.addResourceHandlers(registry)
     }
 
     /**
