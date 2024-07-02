@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono
 import java.net.MalformedURLException
 import java.net.URI
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import java.util.function.Function
 
 /**
@@ -51,7 +52,7 @@ class VertexClientHttpConnector(
         // More info in https://github.com/vert-x3/vertx-4-migration-guide/issues/61.
         val requestOptions = requestOptionsOf(
             connectTimeout = clientOptions.connectTimeout.toLong(),
-            idleTimeout = clientOptions.idleTimeout.toLong(),
+            idleTimeout = clientOptions.idleTimeoutUnit.toMillis(clientOptions.idleTimeout.toLong()),
         )
         try {
             requestOptions.setAbsoluteURI(uri.toURL())

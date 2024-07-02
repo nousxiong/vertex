@@ -51,7 +51,7 @@ class VertexWebSocketClient(
             .setURI(uri.path)
             .setHeaders(headers)
             .setConnectTimeout(clientOptions.connectTimeout.toLong())
-            .setIdleTimeout(clientOptions.idleTimeout.toLong())
+            .setIdleTimeout(clientOptions.idleTimeoutUnit.toMillis(clientOptions.idleTimeout.toLong()))
         client.connect(
             options
         ) { result: AsyncResult<WebSocket> ->
