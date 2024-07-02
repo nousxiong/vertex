@@ -5,6 +5,7 @@ import io.vertex.util.BufferConverter
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.*
+import io.vertx.kotlin.core.http.requestOptionsOf
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.client.reactive.ClientHttpConnector
@@ -48,7 +49,10 @@ class VertexClientHttpConnector(
 
         // New way to create absolute requests is via RequestOptions.
         // More info in https://github.com/vert-x3/vertx-4-migration-guide/issues/61.
-        val requestOptions = RequestOptions()
+        val requestOptions = requestOptionsOf(
+            connectTimeout = clientOptions.connectTimeout.toLong(),
+            idleTimeout = clientOptions.idleTimeout.toLong(),
+        )
         try {
             requestOptions.setAbsoluteURI(uri.toURL())
             requestOptions.setMethod(HttpMethod.valueOf(method.name()))
