@@ -8,7 +8,6 @@ import org.reactivestreams.Subscriber
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferFactory
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.client.reactive.AbstractClientHttpRequest
 import reactor.core.publisher.Flux
@@ -80,10 +79,11 @@ class VertexClientHttpRequest(
 
     override fun applyHeaders() {
         val headers = headers
-        if (!headers.containsKey(HttpHeaders.CONTENT_LENGTH)) {
-            logger.debug("Setting chunked request")
-            delegate.setChunked(true)
-        }
+        // ? I don't think this is necessary... if GET then may 412
+//        if (!headers.containsKey(HttpHeaders.CONTENT_LENGTH)) {
+//            logger.debug("Setting chunked request")
+//            delegate.setChunked(true)
+//        }
         headers.forEach { name: String, values: List<String> ->
             delegate.putHeader(
                 name,
