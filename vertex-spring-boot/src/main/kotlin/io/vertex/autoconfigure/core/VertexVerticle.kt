@@ -7,6 +7,7 @@ import io.vertx.kotlin.coroutines.CoroutineVerticle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.joinAll
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 /**
@@ -90,7 +91,7 @@ open class VertexVerticle(
             current<VertexVerticle>().orderedClosers.add(closer)
         }
     }
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    protected val logger: Logger = LoggerFactory.getLogger(this::class.java)
     val id by lazy(LazyThreadSafetyMode.NONE) { "${this::class.simpleName}[$index]" }
     private val closers = mutableListOf<suspend () -> Unit>()
     private val orderedClosers = mutableListOf<suspend () -> Unit>()
