@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.ReactiveHttpInputMessage
 import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration
-import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.socket.server.WebSocketService
 import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService
 
@@ -71,16 +70,16 @@ class VertexServerAutoConfiguration : DelegatingWebFluxConfiguration() {
         }
     }
 
-    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        registry.addResourceHandler("/**")
-            .addResourceLocations(
-                "classpath:/static/",
-                "classpath:/public/",
-                "classpath:/resources/",
-                "classpath:/META-INF/resources/",
-            )
-        super.addResourceHandlers(registry)
-    }
+//    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+//        registry.addResourceHandler("/**")
+//            .addResourceLocations(
+//                "classpath:/static/",
+//                "classpath:/public/",
+//                "classpath:/resources/",
+//                "classpath:/META-INF/resources/",
+//            )
+//        super.addResourceHandlers(registry)
+//    }
 
     /**
      * 选择重载getWebSocketService方法，而非提供对应的bean，是因为：
