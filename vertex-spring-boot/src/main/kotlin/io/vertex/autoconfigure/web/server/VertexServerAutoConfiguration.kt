@@ -60,12 +60,13 @@ class VertexServerAutoConfiguration : DelegatingWebFluxConfiguration() {
     fun vertexServerVerticleFactory(): VertexServerVerticleFactory {
         return object : VertexServerVerticleFactory {
             override fun create(
+                instances: Int,
                 index: Int,
                 httpServerOptions: HttpServerOptions,
                 handler: Handler<RoutingContext>,
                 gracefulShutdown: GracefulShutdown?,
             ): VertexServerVerticle {
-                return VertexServerVerticle(index, httpServerOptions, handler, gracefulShutdown)
+                return VertexServerVerticle(instances, index, httpServerOptions, handler, gracefulShutdown)
             }
         }
     }

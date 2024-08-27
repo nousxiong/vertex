@@ -54,12 +54,13 @@ class VertexApplication(
     fun serverVerticleFactory(): VertexServerVerticleFactory {
         return object : VertexServerVerticleFactory {
             override fun create(
+                instances: Int,
                 index: Int,
                 httpServerOptions: HttpServerOptions,
                 handler: Handler<RoutingContext>,
                 gracefulShutdown: GracefulShutdown?
             ): VertexServerVerticle {
-                return VtServerVerticle(index, httpServerOptions, handler, gracefulShutdown)
+                return VtServerVerticle(instances, index, httpServerOptions, handler, gracefulShutdown)
             }
         }
     }
@@ -147,11 +148,12 @@ class DemoController(
  * 2、默认情况下（Vertx.CoroutineVerticle），用vt运行协程时，协程挂起恢复后的vt可能和之前不是一个
  */
 class VtServerVerticle(
+    instances: Int,
     index: Int,
     httpServerOptions: HttpServerOptions,
     requestHandler: Handler<RoutingContext>,
     gracefulShutdown: GracefulShutdown?,
-) : VertexServerVerticle(index, httpServerOptions, requestHandler, gracefulShutdown) {
+) : VertexServerVerticle(instances, index, httpServerOptions, requestHandler, gracefulShutdown) {
     companion object {
         val logger: Logger = LoggerFactory.getLogger(VtServerVerticle::class.java)
     }

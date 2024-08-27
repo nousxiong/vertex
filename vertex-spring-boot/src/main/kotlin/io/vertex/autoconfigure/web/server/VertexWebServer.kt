@@ -50,10 +50,11 @@ class VertexWebServer(
         }
 
         Mono.create { sink: MonoSink<Void?> ->
-            logger.info("Vertex HTTP server verticle deploying with ${deploymentsOptions.instances} instances")
+            val instances = deploymentsOptions.instances
+            logger.info("Vertex HTTP server verticle deploying with $instances instances")
             vertx.deployVerticle({
                 val index = indexer.getAndIncrement()
-                val verticle = verticleFactory.create(index, httpServerOptions, requestHandler, gracefulShutdown)
+                val verticle = verticleFactory.create(instances, index, httpServerOptions, requestHandler, gracefulShutdown)
                 verticles[verticle.index] = verticle
                 logger.info("Vertex HTTP ${verticle.id} deployed")
                 verticle

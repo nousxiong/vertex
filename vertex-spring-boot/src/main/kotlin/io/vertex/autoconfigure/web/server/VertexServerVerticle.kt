@@ -13,11 +13,12 @@ import org.springframework.http.HttpStatus
  * Created by xiongxl in 2023/6/7
  */
 open class VertexServerVerticle(
+    instances: Int,
     index: Int,
     private val httpServerOptions: HttpServerOptions,
     private val requestHandler: Handler<RoutingContext>,
     gracefulShutdown: GracefulShutdown?,
-) : VertexVerticle(index, gracefulShutdown) {
+) : VertexVerticle(instances, index, gracefulShutdown) {
     var port = 0
         private set
 

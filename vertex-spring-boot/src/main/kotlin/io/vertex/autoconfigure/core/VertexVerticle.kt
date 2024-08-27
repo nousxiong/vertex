@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory
  * Created by xiongxl in 2023/6/30
  */
 open class VertexVerticle(
+    val instances: Int,
     val index: Int,
     private val gracefulShutdown: GracefulShutdown?,
 ) : CoroutineVerticle() {

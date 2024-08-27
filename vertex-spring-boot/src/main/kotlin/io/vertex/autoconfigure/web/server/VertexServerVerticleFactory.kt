@@ -10,6 +10,7 @@ import io.vertx.ext.web.RoutingContext
  */
 interface VertexServerVerticleFactory {
     fun create(
+        instances: Int,
         index: Int,
         httpServerOptions: HttpServerOptions,
         handler: Handler<RoutingContext>,
