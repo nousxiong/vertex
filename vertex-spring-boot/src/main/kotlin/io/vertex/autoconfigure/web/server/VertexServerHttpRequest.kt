@@ -69,7 +69,8 @@ class VertexServerHttpRequest(
 
     companion object {
         private fun initUri(request: HttpServerRequest): URI {
-            return URI.create(request.absoluteURI())
+            // Xiongxl 20250522 这里如果异常情况request.absoluteURI()可能会返回null
+            return URI.create(request.absoluteURI() ?: "")
         }
 
         private fun initHeaders(request: HttpServerRequest): HttpHeaders {
