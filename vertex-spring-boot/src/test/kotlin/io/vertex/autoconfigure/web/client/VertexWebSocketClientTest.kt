@@ -1,3 +1,5 @@
+@file:Suppress("SpringBootApplicationProperties")
+
 package io.vertex.autoconfigure.web.client
 
 import io.vertex.autoconfigure.core.VertexAutoConfiguration
@@ -32,7 +34,11 @@ import kotlin.test.assertEquals
     VertexClientAutoConfiguration::class,
     TestApplication::class, // 如果没有这个，auto-configure不生效，无法识别Reactive程序，从而报错
     VertexWebSocketClientTest.TestConfiguration::class,
-],
+    ],
+    value = [
+        "vertex.http.client.enabled=true",
+        "vertex.http.client.websocket.enabled=true",
+    ],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 class VertexWebSocketClientTest {

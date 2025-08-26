@@ -11,20 +11,20 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.boot.autoconfigure.web.reactive.function.client.ClientHttpConnectorAutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.autoconfigure.http.client.reactive.ClientHttpConnectorAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.client.reactive.ClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 
 /**
  * Created by xiongxl in 2023/6/20
  */
 @Configuration
+@ConditionalOnProperty(name = ["vertex.http.client.enabled"])
 @ConditionalOnClass(WebClient::class, HttpClient::class)
 @ConditionalOnBean(Vertx::class)
-@ConditionalOnMissingBean(ClientHttpConnector::class)
 @AutoConfigureBefore(ClientHttpConnectorAutoConfiguration::class)
 @EnableConfigurationProperties(HttpClientProperties::class, WebSocketClientProperties::class)
 class VertexClientAutoConfiguration(
@@ -34,12 +34,15 @@ class VertexClientAutoConfiguration(
 ) {
 
     @Bean
+    @ConditionalOnMissingBean
     fun vertexClientHttpConnector(vertx: Vertx): VertexClientHttpConnector {
         val httpClientOptions = customizeHttpClientOptions(httpClientProperties, customizers)
         return VertexClientHttpConnector(vertx, httpClientOptions)
     }
 
     @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = ["vertex.http.client.websocket.enabled"])
     fun vertexWebSocketClient(vertx: Vertx): VertexWebSocketClient {
         val webSocketClientOptions = WebSocketClientOptions(webSocketClientProperties)
         return VertexWebSocketClient(vertx, webSocketClientOptions)

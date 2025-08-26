@@ -1,10 +1,16 @@
 package io.vertex.autoconfigure.web.client
 
 import io.vertex.autoconfigure.common.ReadStreamFluxBuilder
+import io.vertex.autoconfigure.core.CondPtr
+import io.vertex.autoconfigure.core.VerticleLifecycle
 import io.vertex.util.BufferConverter
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
-import io.vertx.core.http.*
+import io.vertx.core.http.HttpClient
+import io.vertx.core.http.HttpClientOptions
+import io.vertx.core.http.HttpClientRequest
+import io.vertx.core.http.HttpClientResponse
+import io.vertx.core.http.HttpMethod
 import io.vertx.kotlin.core.http.requestOptionsOf
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DataBuffer
@@ -16,7 +22,6 @@ import reactor.core.publisher.Mono
 import java.net.MalformedURLException
 import java.net.URI
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 import java.util.function.Function
 
 /**
@@ -30,6 +35,17 @@ class VertexClientHttpConnector(
         private val logger = LoggerFactory.getLogger(VertexClientHttpConnector::class.java)
     }
     private val bufferConverter = BufferConverter()
+    private val httpClient = VerticleLifecycle<CondPtr<HttpClient>>("vertex.http.client.cache")
+        .factory {
+            CondPtr(vertx.createHttpClient(clientOptions), false)
+        }
+        .closer {
+            it.get().close()
+        }
+        .defaulter {
+            CondPtr(vertx.createHttpClient(clientOptions), true)
+        }
+
     override fun connect(
         method: org.springframework.http.HttpMethod,
         uri: URI,
@@ -46,7 +62,8 @@ class VertexClientHttpConnector(
         }
 
         val responseFuture = CompletableFuture<ClientHttpResponse>()
-        val client = vertx.createHttpClient(clientOptions)
+//        val client = vertx.createHttpClient(clientOptions)
+        val client = httpClient.getOrDefault()
 
         // New way to create absolute requests is via RequestOptions.
         // More info in https://github.com/vert-x3/vertx-4-migration-guide/issues/61.
@@ -58,6 +75,7 @@ class VertexClientHttpConnector(
             requestOptions.setAbsoluteURI(uri.toURL())
             requestOptions.setMethod(HttpMethod.valueOf(method.name()))
         } catch (e: MalformedURLException) {
+            client.getWithCond()?.close()
             return Mono.error(
                 java.lang.IllegalArgumentException(
                     "URI is malformed: $uri"
@@ -67,18 +85,20 @@ class VertexClientHttpConnector(
 
         // request handler
         val requestFuture = CompletableFuture<HttpClientRequest>()
-        client.request(requestOptions)
-            .onFailure { ex: Throwable? -> requestFuture.completeExceptionally(ex) }
+        client.get().request(requestOptions)
+            .onFailure { ex: Throwable? ->
+                client.getWithCond()?.close()
+                requestFuture.completeExceptionally(ex)
+            }
             .onSuccess { request: HttpClientRequest ->
                 request.response()
                     .onSuccess { response: HttpClientResponse ->
-                        val responseBody: Flux<DataBuffer> = responseToFlux(response).doFinally { client.close() }
+                        val responseBody: Flux<DataBuffer> = responseToFlux(response).doFinally { client.getWithCond()?.close() }
                         responseFuture.complete(VertexClientHttpResponse(response, responseBody))
                     }
                     .onFailure { ex: Throwable? ->
-                        responseFuture.completeExceptionally(
-                            ex
-                        )
+                        client.getWithCond()?.close()
+                        responseFuture.completeExceptionally(ex)
                     }
                 requestFuture.complete(request)
             }

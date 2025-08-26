@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileInputStream
 import java.util.*
@@ -86,9 +88,7 @@ dependencies {
 	implementation("io.vertx:vertx-lang-kotlin-coroutines:${vertxVersion}")
 	//#endregion vertex.core
 	//#region vertex.web
-	implementation("org.springframework.boot:spring-boot-starter-webflux") {
-		exclude(group = "org.springframework.boot", module = "spring-boot-starter-reactor-netty")
-	}
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("io.vertx:vertx-web:$vertxVersion")
 	implementation("io.vertx:vertx-web-client:$vertxVersion")
 	//#endregion vertex.web
