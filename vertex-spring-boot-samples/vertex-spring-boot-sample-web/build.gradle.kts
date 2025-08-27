@@ -39,7 +39,8 @@ repositories {
 
 dependencies {
 	implementation(project(":vertex-web-spring-boot-starter"))
-	implementation(project(":vertex-actuator-spring-boot-starter"))
+//	implementation(project(":vertex-actuator-spring-boot-starter"))
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("jakarta.websocket:jakarta.websocket-api:$jakartaWebsocketVersion")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	testImplementation(project(":vertex-web-test-spring-boot-starter"))
