@@ -16,7 +16,7 @@ object CookieConverter {
             .setHttpOnly(responseCookie.isHttpOnly)
             .setSecure(responseCookie.isSecure)
         if (!responseCookie.maxAge.isNegative) {
-            cookie.setMaxAge(responseCookie.maxAge.seconds)
+            cookie.maxAge = responseCookie.maxAge.seconds
         }
         return cookie
     }

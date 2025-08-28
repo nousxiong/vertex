@@ -80,7 +80,7 @@ class VertexServerHttpResponse(
         if (delegate.headWritten()) return
         val statusCode: HttpStatusCode? = statusCode
         if (statusCode != null) {
-            delegate.setStatusCode(statusCode.value())
+            delegate.statusCode = statusCode.value()
         }
     }
 
@@ -89,7 +89,7 @@ class VertexServerHttpResponse(
         val headers = headers
         if (!headers.containsKey(HttpHeaders.CONTENT_LENGTH)) {
             logger.debug("Setting chunked response")
-            delegate.setChunked(true)
+            delegate.isChunked = true
         }
         headers.forEach { name: String, values: List<String> ->
             delegate.putHeader(

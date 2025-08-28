@@ -1,7 +1,5 @@
 package io.vertex.sample.web
 
-//import io.vertx.ext.web.client.WebClient
-//import io.vertx.kotlin.coroutines.coAwait
 import io.vertex.autoconfigure.core.GracefulShutdown
 import io.vertex.autoconfigure.core.VertexCloser
 import io.vertex.autoconfigure.core.VertexVerticle
@@ -21,6 +19,7 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.http.client.reactive.ClientHttpConnector
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.config.BlockingExecutionConfigurer
 import org.springframework.web.reactive.config.WebFluxConfigurer
@@ -133,7 +132,7 @@ class SampleWebApplication(private val vertx: Vertx) : WebFluxConfigurer {
 	 * 	+ vertex.http.client.enabled=true
 	 *  + 禁用阻塞方法
 	 */
-	@GetMapping("/hellov")
+	@RequestMapping("/hellov")
 	fun hellov() = verticleScope {
 		logger.info("hellov vertex before vid=${VertexVerticle.idOrNull()}")
 		delay(100L)
