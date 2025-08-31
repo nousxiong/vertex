@@ -36,6 +36,9 @@ class VertexHttpHandlerAdapter(private val httpHandler: HttpHandler) : Handler<R
                     .setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .end()
             }
+            .doOnTerminate {
+                logger.debug("Finished server request handling")
+            }
             .subscribe()
     }
 }

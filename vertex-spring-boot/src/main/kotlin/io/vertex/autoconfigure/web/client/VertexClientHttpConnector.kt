@@ -51,7 +51,7 @@ class VertexClientHttpConnector(
         uri: URI,
         requestCallback: Function<in ClientHttpRequest, Mono<Void>>
     ): Mono<ClientHttpResponse> {
-        logger.debug("Connecting to '${uri}' with '${method}")
+        logger.debug("Connecting to '${uri}' with '${method}'")
 
         if (!uri.isAbsolute) {
             return Mono.error(
@@ -61,8 +61,6 @@ class VertexClientHttpConnector(
             )
         }
 
-        val responseFuture = CompletableFuture<ClientHttpResponse>()
-//        val client = vertx.createHttpClient(clientOptions)
         val client = httpClient.getOrDefault()
 
         // New way to create absolute requests is via RequestOptions.
@@ -74,7 +72,7 @@ class VertexClientHttpConnector(
         try {
             requestOptions.setAbsoluteURI(uri.toURL())
             requestOptions.setMethod(HttpMethod.valueOf(method.name()))
-        } catch (e: MalformedURLException) {
+        } catch (_: MalformedURLException) {
             client.getWithCond()?.close()
             return Mono.error(
                 java.lang.IllegalArgumentException(
@@ -85,19 +83,26 @@ class VertexClientHttpConnector(
 
         // request handler
         val requestFuture = CompletableFuture<HttpClientRequest>()
+        // response handler
+        val responseFuture = CompletableFuture<ClientHttpResponse>()
+        // 统一处理结束回调
+        val cleaner = fun () {
+            client.getWithCond()?.close()
+            logger.debug("Request to '${uri}' with '${method}' finished")
+        }
         client.get().request(requestOptions)
             .onFailure { ex: Throwable? ->
-                client.getWithCond()?.close()
+                cleaner()
                 requestFuture.completeExceptionally(ex)
             }
             .onSuccess { request: HttpClientRequest ->
                 request.response()
                     .onSuccess { response: HttpClientResponse ->
-                        val responseBody: Flux<DataBuffer> = responseToFlux(response).doFinally { client.getWithCond()?.close() }
+                        val responseBody: Flux<DataBuffer> = responseToFlux(response).doFinally { cleaner() }
                         responseFuture.complete(VertexClientHttpResponse(response, responseBody))
                     }
                     .onFailure { ex: Throwable? ->
-                        client.getWithCond()?.close()
+                        cleaner()
                         responseFuture.completeExceptionally(ex)
                     }
                 requestFuture.complete(request)
