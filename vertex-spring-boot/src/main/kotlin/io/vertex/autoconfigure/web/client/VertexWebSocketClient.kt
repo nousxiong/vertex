@@ -43,7 +43,6 @@ class VertexWebSocketClient(
     }
 
     private fun connect(uri: URI, headers: HeadersMultiMap, handler: WebSocketHandler, callback: MonoSink<Void>) {
-//        val client = vertx.createHttpClient(clientOptions)
         val client = vertx.createWebSocketClient(clientOptions)
         val options = WebSocketConnectOptions()
             .setPort(uri.port)
@@ -73,7 +72,7 @@ class VertexWebSocketClient(
 
     private fun convertHeaders(headers: HttpHeaders): HeadersMultiMap {
         val vertxHeaders = HeadersMultiMap()
-        headers.forEach { name: String, values: List<String> ->
+        headers.forEach { (name: String, values: List<String>) ->
             vertxHeaders.add(
                 name,
                 values
