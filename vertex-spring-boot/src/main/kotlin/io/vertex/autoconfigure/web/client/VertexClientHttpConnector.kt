@@ -17,6 +17,7 @@ import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.client.reactive.ClientHttpConnector
 import org.springframework.http.client.reactive.ClientHttpRequest
 import org.springframework.http.client.reactive.ClientHttpResponse
+import org.springframework.util.ObjectUtils
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.net.MalformedURLException
@@ -51,12 +52,13 @@ class VertexClientHttpConnector(
         uri: URI,
         requestCallback: Function<in ClientHttpRequest, Mono<Void>>
     ): Mono<ClientHttpResponse> {
-        logger.debug("Connecting to '${uri}' with '${method}'")
+        val rid = ObjectUtils.getIdentityHexString(uri)
+        logger.debug("Connecting to '${uri}' with '${method}' $rid")
 
         if (!uri.isAbsolute) {
             return Mono.error(
                 IllegalArgumentException(
-                    "URI is not absolute: $uri"
+                    "Connecting to '${uri}' with '${method}' $rid URI is not absolute: $uri"
                 )
             )
         }
@@ -76,7 +78,7 @@ class VertexClientHttpConnector(
             client.getWithCond()?.close()
             return Mono.error(
                 java.lang.IllegalArgumentException(
-                    "URI is malformed: $uri"
+                    "Connecting to '${uri}' with '${method}' $rid URI is malformed: $uri"
                 )
             )
         }
@@ -88,7 +90,7 @@ class VertexClientHttpConnector(
         // 统一处理结束回调
         val cleaner = fun () {
             client.getWithCond()?.close()
-            logger.debug("Request to '${uri}' with '${method}' finished")
+            logger.debug("Finished client request $rid to '${uri}' with '${method}'")
         }
         client.get().request(requestOptions)
             .onFailure { ex: Throwable? ->

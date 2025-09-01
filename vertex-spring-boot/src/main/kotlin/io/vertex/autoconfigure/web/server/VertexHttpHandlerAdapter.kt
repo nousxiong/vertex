@@ -17,27 +17,27 @@ class VertexHttpHandlerAdapter(private val httpHandler: HttpHandler) : Handler<R
     private val bufferConverter = BufferConverter()
 
     override fun handle(context: RoutingContext) {
-        logger.debug("Adapting Vert.x server request to WebFlux request")
-
         val webFluxRequest = VertexServerHttpRequest(context, bufferConverter)
+        val rid = webFluxRequest.id
+        logger.debug("Adapting Vert.x server request to WebFlux request $rid")
         val webFluxResponse = VertexServerHttpResponse(context, bufferConverter)
 
         httpHandler.handle(webFluxRequest, webFluxResponse)
             .doOnSuccess {
-                logger.debug("Completed server request handling")
+                logger.debug("Completed server request $rid handling")
                 if (!context.response().ended()) {
                     context.response()
                         .end()
                 }
             }
             .doOnError { throwable: Throwable ->
-                logger.debug("Completed server request handling with an error '${throwable}'")
+                logger.debug("Completed server request $rid handling with an error '${throwable}'")
                 context.response()
                     .setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .end()
             }
             .doOnTerminate {
-                logger.debug("Finished server request handling")
+                logger.debug("Finished server request $rid handling")
             }
             .subscribe()
     }
