@@ -2,6 +2,7 @@ package io.vertex.autoconfigure.core
 
 import io.vertx.core.Context
 import io.vertx.core.Future
+import io.vertx.core.Promise
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +41,7 @@ open class VertexVerticle(
             }
 
         fun <T : VertexVerticle> current(): T = Vertx.currentContext().get(VERTICLE) as T
-        fun <T : VertexVerticle> currentOrNull(): T? = Vertx.currentContext()?.get(VERTICLE) as? T
+        fun <T : VertexVerticle> currentOrNull(): T? = Vertx.currentContext()?.get(VERTICLE)
 
         fun <T> put(key: String, value: T, ctx: Context = Vertx.currentContext()) {
             ctx.put(key, value)
@@ -102,6 +103,24 @@ open class VertexVerticle(
         ctx.put(VERTICLE_INDEX, index)
         ctx.put(VERTICLE_ID, id)
         ctx.put(VERTICLE, this)
+    }
+
+    /**
+     * 在stop调用之前调用，可用于在此时cancelChildren
+     */
+    open fun preStop() = Unit
+
+    /**
+     * 覆盖super实现，为了调用[preStop]
+     */
+    override fun stop(stopFuture: Promise<Void>?) {
+        try {
+            preStop()
+        } catch (e: Throwable) {
+            logger.warn("PreStop $id exception: ${e.message}")
+        }
+        // 再调用父类方法，此时再启动的协程不会被cancel
+        super.stop(stopFuture)
     }
 
     override suspend fun stop() {

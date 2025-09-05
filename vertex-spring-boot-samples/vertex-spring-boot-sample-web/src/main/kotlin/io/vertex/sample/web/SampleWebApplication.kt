@@ -135,7 +135,7 @@ class SampleWebApplication(private val vertx: Vertx) : WebFluxConfigurer {
 	@RequestMapping("/hellov")
 	fun hellov() = verticleScope {
 		logger.info("hellov vertex before vid=${VertexVerticle.idOrNull()}")
-		delay(100L)
+		delay(1 * 1000L)
 		logger.info("hellov baidu size: ${getUrlSize("www.baidu.com")}")
 		logger.info("hellov vertex after vid=${VertexVerticle.idOrNull()}")
 		"Hello, Verticle!"
@@ -158,7 +158,16 @@ class MyServerVerticle(
     httpServerOptions: HttpServerOptions,
     requestHandler: Handler<RoutingContext>,
     gracefulShutdown: GracefulShutdown?,
-) : VertexServerVerticle(instances, index, httpServerOptions, requestHandler, gracefulShutdown)
+) : VertexServerVerticle(instances, index, httpServerOptions, requestHandler, gracefulShutdown) {
+	companion object {
+		val logger: Logger = LoggerFactory.getLogger(MyServerVerticle::class.java)
+	}
+
+	override fun preStop() {
+		logger.info("preStop $id")
+//		coroutineContext.job.cancelChildren()
+	}
+}
 
 fun main(args: Array<String>) {
 	runApplication<SampleWebApplication>(*args)

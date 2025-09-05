@@ -62,13 +62,15 @@ class GracefulShutdown(
             delay(preWaitMillis)
         }
         val job = verticle.coroutineContext.job as CompletableJob
-        shutDownResults[verticle.index] = 1
-        if (job.isCompleted) return true
+        if (job.isCompleted) {
+            shutDownResults[verticle.index] = 1
+            return true
+        }
 
         val clock = Clock.tickMillis(ZoneId.systemDefault())
         val bt = clock.millis()
         job.complete()
-        while (job.children.count() > minRemainJob) { //
+        while (job.children.count() > minRemainJob) {
             if (aborted || timeoutMillis > 0L && clock.millis() - bt >= timeoutMillis) {
                 return false
             }
