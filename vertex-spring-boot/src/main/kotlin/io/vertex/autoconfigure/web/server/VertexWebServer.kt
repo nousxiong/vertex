@@ -1,8 +1,8 @@
 package io.vertex.autoconfigure.web.server
 
 import io.vertex.autoconfigure.core.GracefulShutdown
+import io.vertex.autoconfigure.web.server.properties.ServerDeploymentProperties
 import io.vertx.core.AsyncResult
-import io.vertx.core.DeploymentOptions
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServerOptions
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray
 class VertexWebServer(
     private val vertx: Vertx,
     private val httpServerOptions: HttpServerOptions,
-    private val deploymentsOptions: DeploymentOptions,
+    private val deploymentProperties: ServerDeploymentProperties,
     private val verticleFactory: VertexServerVerticleFactory,
     private val requestHandler: Handler<RoutingContext>,
     shutdown: Shutdown,
@@ -35,14 +35,18 @@ class VertexWebServer(
     }
 
     private var gracefulShutdown: GracefulShutdown? = if (shutdown == Shutdown.GRACEFUL) {
-        GracefulShutdown(deploymentsOptions.instances)
+        GracefulShutdown(
+            deploymentProperties.instances,
+            preWaitMillis = deploymentProperties.gracefulShutdownPreWaitMillis.toMillis(),
+            timeoutMillis = deploymentProperties.gracefulShutdownWaitMillis.toMillis()
+        )
     } else {
         null
     }
     private var deploymentId = ""
     private var undeployed = false
     private val indexer = AtomicInteger(0)
-    private val verticles = AtomicReferenceArray<VertexServerVerticle>(deploymentsOptions.instances)
+    private val verticles = AtomicReferenceArray<VertexServerVerticle>(deploymentProperties.instances)
 
     override fun start() {
         if (deploymentId.isNotEmpty()) {
@@ -50,7 +54,7 @@ class VertexWebServer(
         }
 
         Mono.create { sink: MonoSink<Void?> ->
-            val instances = deploymentsOptions.instances
+            val instances = deploymentProperties.instances
             logger.info("Vertex HTTP server verticle deploying with $instances instances")
             vertx.deployVerticle({
                 val index = indexer.getAndIncrement()
@@ -58,7 +62,7 @@ class VertexWebServer(
                 verticles[verticle.index] = verticle
                 logger.info("Vertex HTTP ${verticle.id} deployed")
                 verticle
-            }, deploymentsOptions).onComplete { ar: AsyncResult<String> ->
+            }, deploymentProperties).onComplete { ar: AsyncResult<String> ->
                 if (ar.succeeded()) {
                     deploymentId = ar.result()
                     logger.info("Vertex HTTP server<${port}> verticle deploy completed")

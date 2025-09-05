@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.web.server.GracefulShutdownCallback
 import org.springframework.boot.web.server.GracefulShutdownResult
 import java.time.Clock
+import java.time.Duration
 import java.time.ZoneId
 import java.util.concurrent.atomic.AtomicIntegerArray
 
@@ -15,12 +16,14 @@ import java.util.concurrent.atomic.AtomicIntegerArray
  * Mod by xiongxl in 2023/6/30 修改为VertexVerticle版本
  * @param minRemainJob 剩余最小job数量就退出
  * @param periodMillis 循环检查时间（毫秒）
+ * @param preWaitMillis 预等待时间（毫秒），可用于k8s的preStop作用
  * @param timeoutMillis 等待超时时间（毫秒）
  */
 class GracefulShutdown(
     verticleInstances: Int,
     private val minRemainJob: Int = 1, // 当在start或stop里调用时这个值必须是1
     private val periodMillis: Long = 100L,
+    private val preWaitMillis: Long = 0L,
     private val timeoutMillis: Long = 20 * 1000L,
 ) {
     companion object {
@@ -29,6 +32,12 @@ class GracefulShutdown(
     @Volatile
     private var aborted = false
     private val shutDownResults = AtomicIntegerArray(verticleInstances)
+
+    init {
+        require(minRemainJob >= 0)
+        require(periodMillis > 0L)
+    }
+
     fun abort() {
         aborted = true
     }
@@ -48,8 +57,10 @@ class GracefulShutdown(
      * @return true未超时结束，false超时
      */
     suspend fun awaitCompletion(verticle: VertexVerticle): Boolean {
-        require(minRemainJob >= 0)
-        require(periodMillis > 0L)
+        if (preWaitMillis > 0L) {
+            logger.info("Graceful shutdown ${verticle.id} pre waiting for ${Duration.ofMillis(preWaitMillis).toSeconds()}s")
+            delay(preWaitMillis)
+        }
         val job = verticle.coroutineContext.job as CompletableJob
         shutDownResults[verticle.index] = 1
         if (job.isCompleted) return true
