@@ -4,10 +4,7 @@ import io.vertex.autoconfigure.core.GracefulShutdown
 import io.vertex.autoconfigure.core.VertexVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticleFactory
-import io.vertx.core.Handler
 import io.vertx.core.Vertx
-import io.vertx.core.http.HttpServerOptions
-import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.kotlin.coroutines.dispatcher
@@ -41,11 +38,9 @@ class SampleWebSocketApplication(private val vertx: Vertx) {
 			override fun create(
 				instances: Int,
 				index: Int,
-				httpServerOptions: HttpServerOptions,
-				handler: Handler<RoutingContext>,
 				gracefulShutdown: GracefulShutdown?
 			): VertexServerVerticle {
-				return MyServerVerticle(instances, index, httpServerOptions, handler, gracefulShutdown)
+				return MyServerVerticle(instances, index, gracefulShutdown)
 			}
 		}
 	}
@@ -96,10 +91,8 @@ class SampleWebSocketApplication(private val vertx: Vertx) {
 class MyServerVerticle(
 	instances: Int,
     index: Int,
-    httpServerOptions: HttpServerOptions,
-    requestHandler: Handler<RoutingContext>,
     gracefulShutdown: GracefulShutdown?,
-) : VertexServerVerticle(instances, index, httpServerOptions, requestHandler, gracefulShutdown)
+) : VertexServerVerticle(instances, index, gracefulShutdown)
 
 fun main(args: Array<String>) {
 	runApplication<SampleWebSocketApplication>(*args)

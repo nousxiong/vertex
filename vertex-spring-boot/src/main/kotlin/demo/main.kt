@@ -8,10 +8,7 @@ import io.vertex.autoconfigure.web.server.VertexServerVerticle
 import io.vertex.autoconfigure.web.server.VertexServerVerticleFactory
 import io.vertex.util.verticleScope
 import io.vertx.core.Future
-import io.vertx.core.Handler
 import io.vertx.core.Vertx
-import io.vertx.core.http.HttpServerOptions
-import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.coroutines.coAwait
 import kotlinx.coroutines.delay
@@ -56,11 +53,9 @@ class VertexApplication(
             override fun create(
                 instances: Int,
                 index: Int,
-                httpServerOptions: HttpServerOptions,
-                handler: Handler<RoutingContext>,
                 gracefulShutdown: GracefulShutdown?
             ): VertexServerVerticle {
-                return VtServerVerticle(instances, index, httpServerOptions, handler, gracefulShutdown)
+                return VtServerVerticle(instances, index, gracefulShutdown)
             }
         }
     }
@@ -150,10 +145,8 @@ class DemoController(
 class VtServerVerticle(
     instances: Int,
     index: Int,
-    httpServerOptions: HttpServerOptions,
-    requestHandler: Handler<RoutingContext>,
     gracefulShutdown: GracefulShutdown?,
-) : VertexServerVerticle(instances, index, httpServerOptions, requestHandler, gracefulShutdown) {
+) : VertexServerVerticle(instances, index, gracefulShutdown) {
     companion object {
         val logger: Logger = LoggerFactory.getLogger(VtServerVerticle::class.java)
     }

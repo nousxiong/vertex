@@ -4,10 +4,7 @@ import io.vertex.autoconfigure.core.GracefulShutdown
 import io.vertex.autoconfigure.web.server.properties.HttpServerOptionsCustomizer
 import io.vertex.autoconfigure.web.server.properties.HttpServerProperties
 import io.vertex.autoconfigure.web.server.properties.ServerDeploymentProperties
-import io.vertx.core.Handler
 import io.vertx.core.Vertx
-import io.vertx.core.http.HttpServerOptions
-import io.vertx.ext.web.RoutingContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
@@ -67,11 +64,9 @@ class VertexServerAutoConfiguration : WebFluxConfigurer {
             override fun create(
                 instances: Int,
                 index: Int,
-                httpServerOptions: HttpServerOptions,
-                handler: Handler<RoutingContext>,
                 gracefulShutdown: GracefulShutdown?,
             ): VertexServerVerticle {
-                return VertexServerVerticle(instances, index, httpServerOptions, handler, gracefulShutdown)
+                return VertexServerVerticle(instances, index, gracefulShutdown)
             }
         }
     }

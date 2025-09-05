@@ -8,6 +8,7 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.kotlin.coroutines.coAwait
 import org.springframework.http.HttpStatus
+import java.util.concurrent.atomic.AtomicReferenceArray
 
 /**
  * Created by xiongxl in 2023/6/7
@@ -15,12 +16,36 @@ import org.springframework.http.HttpStatus
 open class VertexServerVerticle(
     instances: Int,
     index: Int,
-    private val httpServerOptions: HttpServerOptions,
-    private val requestHandler: Handler<RoutingContext>,
     gracefulShutdown: GracefulShutdown?,
 ) : VertexVerticle(instances, index, gracefulShutdown) {
     var port = 0
         private set
+
+    private lateinit var httpServerOptions: HttpServerOptions
+    private lateinit var requestHandler: Handler<RoutingContext>
+    private lateinit var verticles: AtomicReferenceArray<VertexServerVerticle>
+
+    internal fun initialize(
+        httpServerOptions: HttpServerOptions,
+        requestHandler: Handler<RoutingContext>,
+        verticles: AtomicReferenceArray<VertexServerVerticle>
+    ) {
+        this.httpServerOptions = httpServerOptions
+        this.requestHandler = requestHandler
+        this.verticles = verticles
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : VertexServerVerticle> getAllVerticles(): List<T> {
+        return (0 until instances).map { i ->
+            verticles[i] as T
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : VertexServerVerticle> getVerticle(index: Int): T {
+        return verticles[index] as T
+    }
 
     override suspend fun start() {
         super.start()
