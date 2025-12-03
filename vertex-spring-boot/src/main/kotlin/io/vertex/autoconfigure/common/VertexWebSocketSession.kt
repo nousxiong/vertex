@@ -5,6 +5,7 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.WebSocketBase
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.util.ObjectUtils
 import org.springframework.web.reactive.socket.CloseStatus
@@ -32,7 +33,7 @@ class VertexWebSocketSession(
     bufferConverter.dataBufferFactory
 ) {
     companion object {
-        private val logger = LoggerFactory.getLogger(VertexWebSocketSession::class.java)
+        private val slfLog: Logger = LoggerFactory.getLogger(VertexWebSocketSession::class.java)
     }
     init {
         require(!(maxWebSocketMessageSize < 1 || maxWebSocketFrameSize < 1)) {
@@ -42,31 +43,31 @@ class VertexWebSocketSession(
     private val requestLimit: Long = maxWebSocketMessageSize / maxWebSocketFrameSize + 1L
     override fun receive(): Flux<WebSocketMessage> {
         return Flux.create { sink: FluxSink<WebSocketMessage> ->
-            logger.debug("${logPrefix}Connecting to a web socket read stream")
+            slfLog.debug("${logPrefix}Connecting to a web socket read stream")
             val socket = delegate
             socket.pause()
                 .textMessageHandler { payload: String ->
-                    logger.debug("${logPrefix}Received text '${payload}' from a web socket read stream")
+                    slfLog.debug("${logPrefix}Received text '${payload}' from a web socket read stream")
                     sink.next(textMessage(payload))
                 }
                 .binaryMessageHandler { payload: Buffer ->
-                    logger.debug("${logPrefix}Received binary '${payload}' from a web socket read stream")
+                    slfLog.debug("${logPrefix}Received binary '${payload}' from a web socket read stream")
                     sink.next(binaryMessage(payload))
                 }
                 .pongHandler { payload: Buffer ->
-                    logger.debug("${logPrefix}Received pong '${payload}' from a web socket read stream")
+                    slfLog.debug("${logPrefix}Received pong '${payload}' from a web socket read stream")
                     sink.next(pongMessage(payload))
                 }
                 .exceptionHandler { throwable: Throwable? ->
-                    logger.debug("${logPrefix}Received exception '${throwable}' from a web socket read stream")
+                    slfLog.debug("${logPrefix}Received exception '${throwable}' from a web socket read stream")
                     sink.error(throwable!!)
                 }
                 .endHandler {
-                    logger.debug("${logPrefix}Web socket read stream ended")
+                    slfLog.debug("${logPrefix}Web socket read stream ended")
                     sink.complete()
                 }
             sink.onRequest { i: Long ->
-                logger.debug("${logPrefix}Fetching '${i}' entries from a web socket read stream")
+                slfLog.debug("${logPrefix}Fetching '${i}' entries from a web socket read stream")
                 socket.fetch(i)
             }
         }
@@ -74,7 +75,7 @@ class VertexWebSocketSession(
 
     override fun send(messages: Publisher<WebSocketMessage>): Mono<Void> {
         return Mono.create { sink: MonoSink<Void> ->
-            logger.debug("${logPrefix}Subscribing to messages publisher")
+            slfLog.debug("${logPrefix}Subscribing to messages publisher")
             val subscriber: Subscriber<WebSocketMessage> =
                 WriteStreamSubscriber<WebSocketBase, WebSocketMessage>(
                     delegate,
@@ -91,11 +92,11 @@ class VertexWebSocketSession(
     }
 
     override fun close(status: CloseStatus): Mono<Void> {
-        logger.debug("${logPrefix}Closing web socket with status '${status}'")
+        slfLog.debug("${logPrefix}Closing web socket with status '${status}'")
         return Mono.create { sink: MonoSink<Void> ->
             delegate
                 .closeHandler {
-                    logger.debug("${logPrefix}Web socket closed")
+                    slfLog.debug("${logPrefix}Web socket closed")
                     sink.success()
                 }
                 .close(status.code.toShort(), status.reason)
