@@ -61,6 +61,12 @@ class VertexWebSocketClientTest {
         private fun echoHandler(session: WebSocketSession): Mono<Void> {
             logger.info("Server session: ${session.id}")
             val upFlux = session.receive().filter { it.type == WebSocketMessage.Type.TEXT }
+            // 模拟会话建立立刻下行消息
+            val created = Flux.fromIterable(listOf(
+                session.textMessage("Welcome,"),
+                session.textMessage("Welcome!")
+            ))
+
             // 使用 concatMap 或 flatMap 来处理
             val messages = upFlux.concatMap {
                 val payload = it.payloadAsText
@@ -98,7 +104,7 @@ class VertexWebSocketClientTest {
 //                    session.textMessage(payload)
 //                }
 //                .asFlux(Vertx.currentContext().dispatcher())
-            return session.send(messages)
+            return session.send(Flux.concat(created, messages))
         }
     }
 
@@ -106,7 +112,18 @@ class VertexWebSocketClientTest {
     fun `should echo two hello and bye`() {
         webSocketClient.execute(URI("ws://localhost:$port$ECHO_URL")) { session ->
             val downFlux = session.receive()
-            session.send(session.textMessage("hellox2").toMono())
+            downFlux.next().map { it.payloadAsText }
+                .doOnNext {
+                    assertEquals("Welcome,", it)
+                    logger.info("Client Received welcome: $it")
+                }
+                .then(downFlux.next().map { it.payloadAsText })
+                .doOnNext {
+                    assertEquals("Welcome!", it)
+                    logger.info("Client Received welcome: $it")
+                }
+                .then(session.send(session.textMessage("hellox2").toMono()))
+//            session.send(session.textMessage("hellox2").toMono())
                 .then(downFlux.next().map { it.payloadAsText })
                 .doOnNext {
                     assertEquals("hello", it)
@@ -132,7 +149,18 @@ class VertexWebSocketClientTest {
     fun `should echo hello and bye`() {
         webSocketClient.execute(URI("ws://localhost:$port$ECHO_URL")) { session ->
             val downFlux = session.receive()
-            session.send(session.textMessage("hello").toMono())
+            downFlux.next().map { it.payloadAsText }
+                .doOnNext {
+                    assertEquals("Welcome,", it)
+                    logger.info("Client Received welcome: $it")
+                }
+                .then(downFlux.next().map { it.payloadAsText })
+                .doOnNext {
+                    assertEquals("Welcome!", it)
+                    logger.info("Client Received welcome: $it")
+                }
+                .then(session.send(session.textMessage("hello").toMono()))
+//            session.send(session.textMessage("hello").toMono())
                 .then(downFlux.next().map { it.payloadAsText })
                 .doOnNext {
                     assertEquals("hello", it)
