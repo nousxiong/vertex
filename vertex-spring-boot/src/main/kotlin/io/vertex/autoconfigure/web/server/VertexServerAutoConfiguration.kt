@@ -6,6 +6,7 @@ import io.vertex.autoconfigure.web.server.properties.HttpServerProperties
 import io.vertex.autoconfigure.web.server.properties.ServerDeploymentProperties
 import io.vertx.core.Vertx
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -75,7 +76,7 @@ class VertexServerAutoConfiguration : WebFluxConfigurer {
      * vertx的websocket支持
      */
     override fun getWebSocketService(): WebSocketService? {
-        val webServerFactory = applicationContext.getBean(VertexReactiveWebServerFactory::class.java)
+        val webServerFactory = applicationContext.getBean<VertexReactiveWebServerFactory>()
         val httpServerOptions = webServerFactory.customizeHttpServerOptions()
         val requestUpgradeStrategy = VertexRequestUpgradeStrategy(
             httpServerOptions.maxWebSocketFrameSize, httpServerOptions.maxWebSocketMessageSize
