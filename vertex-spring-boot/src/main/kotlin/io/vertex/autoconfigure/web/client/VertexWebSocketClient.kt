@@ -44,10 +44,17 @@ class VertexWebSocketClient(
 
     private fun connect(uri: URI, headers: HeadersMultiMap, handler: WebSocketHandler, callback: MonoSink<Void>) {
         val client = vertx.createWebSocketClient(clientOptions)
+        val ssl = uri.scheme == "wss" || uri.scheme == "https"
+        val port = if (uri.port == -1) {
+            if (ssl) 443 else 80
+        } else {
+            uri.port
+        }
         val options = WebSocketConnectOptions()
-            .setPort(uri.port)
+            .setPort(port)
             .setHost(uri.host)
             .setURI(uri.path)
+            .setSsl(ssl)
             .setHeaders(headers)
             .setConnectTimeout(clientOptions.connectTimeout.toLong())
             .setIdleTimeout(clientOptions.idleTimeoutUnit.toMillis(clientOptions.idleTimeout.toLong()))
