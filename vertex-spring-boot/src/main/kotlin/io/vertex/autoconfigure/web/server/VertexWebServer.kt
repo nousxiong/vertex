@@ -15,7 +15,6 @@ import org.springframework.boot.web.server.Shutdown
 import org.springframework.boot.web.server.WebServer
 import reactor.core.publisher.Mono
 import reactor.core.publisher.MonoSink
-import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReferenceArray
 
@@ -73,7 +72,7 @@ class VertexWebServer(
                     sink.error(ar.cause())
                 }
             }
-        }.block(Duration.ofSeconds(10))
+        }.block(deploymentProperties.serverStartTimeout)
     }
 
     override fun stop() {
@@ -100,7 +99,7 @@ class VertexWebServer(
             for (i in 0 until verticles.length()) {
                 verticles[i] = null
             }
-        }.block(Duration.ofSeconds(10))
+        }.block(deploymentProperties.serverStopTimeout)
     }
 
     override fun shutDownGracefully(callback: GracefulShutdownCallback) {

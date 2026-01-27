@@ -12,6 +12,10 @@ class ServerDeploymentProperties : DeploymentOptions() {
     companion object {
         const val PROPERTIES_PREFIX = "vertex.http.server.deployments"
     }
+
     var gracefulShutdownPreWaitMillis: Duration = Duration.ofSeconds(0L)
     var gracefulShutdownWaitMillis: Duration = Duration.ofSeconds(20L)
+
+    var serverStartTimeout: Duration = Duration.ofSeconds(10L)
+    var serverStopTimeout: Duration = Duration.ofSeconds(10L)
 }
