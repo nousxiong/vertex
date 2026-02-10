@@ -78,9 +78,9 @@ open class VertexVerticle(
         fun <T> getOrCreateAsync(key: String, ctx: Context = Vertx.currentContext(), asyncFactory: () -> Future<T>): Future<T> {
             val value = ctx.get<T>(key)
             if (value != null) return Future.future { it.complete(value) }
-            return asyncFactory().andThen {
-                if (it.succeeded()) {
-                    ctx.put(key, it.result())
+            return asyncFactory().andThen { result, ex ->
+                if (ex == null) {
+                    ctx.put(key, result)
                 }
             }
         }

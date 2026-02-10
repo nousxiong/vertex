@@ -2,7 +2,6 @@ package io.vertex.autoconfigure.web.client
 
 import io.vertex.autoconfigure.common.VertexWebSocketSession
 import io.vertex.util.BufferConverter
-import io.vertx.core.AsyncResult
 import io.vertx.core.Vertx
 import io.vertx.core.http.WebSocket
 import io.vertx.core.http.WebSocketClientOptions
@@ -58,13 +57,9 @@ class VertexWebSocketClient(
             .setHeaders(headers)
             .setConnectTimeout(clientOptions.connectTimeout.toLong())
             .setIdleTimeout(clientOptions.idleTimeoutUnit.toMillis(clientOptions.idleTimeout.toLong()))
-        client.connect(
-            options
-        ) { result: AsyncResult<WebSocket> ->
-            if (result.failed()) {
-                callback.error(result.cause())
-            } else {
-                handler.handle(initSession(uri, result.result()))
+        client.connect(options).onComplete { socket, ex ->
+            if (ex == null) {
+                handler.handle(initSession(uri, socket))
                     .doOnSuccess { value: Void? ->
                         callback.success(
                             value
@@ -73,12 +68,15 @@ class VertexWebSocketClient(
                     .doOnError { e: Throwable -> callback.error(e) }
                     .doFinally { client.close() }
                     .subscribe()
+            } else {
+                // failed
+                callback.error(ex)
             }
         }
     }
 
     private fun convertHeaders(headers: HttpHeaders): HeadersMultiMap {
-        val vertxHeaders = HeadersMultiMap()
+        val vertxHeaders = HeadersMultiMap.httpHeaders()
         headers.forEach { (name: String, values: List<String>) ->
             vertxHeaders.add(
                 name,

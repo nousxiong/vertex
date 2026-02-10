@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.MonoSink
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReferenceArray
+import java.util.function.Supplier
 
 /**
  * Created by xiongxl in 2023/6/8
@@ -55,7 +56,7 @@ class VertexWebServer(
         Mono.create { sink: MonoSink<Void?> ->
             val instances = deploymentProperties.instances
             logger.info("Vertex HTTP server verticle deploying with $instances instances")
-            vertx.deployVerticle({
+            vertx.deployVerticle(Supplier {
                 val index = indexer.getAndIncrement()
                 val verticle = verticleFactory.create(instances, index, gracefulShutdown).apply {
                     initialize(httpServerOptions, requestHandler, verticles)
@@ -63,13 +64,13 @@ class VertexWebServer(
                 verticles[verticle.index] = verticle
                 logger.info("Vertex HTTP ${verticle.id} deployed")
                 verticle
-            }, deploymentProperties).onComplete { ar: AsyncResult<String> ->
-                if (ar.succeeded()) {
-                    deploymentId = ar.result()
+            }, deploymentProperties).onComplete { result, ex ->
+                if (ex == null) {
+                    deploymentId = result
                     logger.info("Vertex HTTP server<${port}> verticle deploy completed")
                     sink.success()
                 } else {
-                    sink.error(ar.cause())
+                    sink.error(ex)
                 }
             }
         }.block(deploymentProperties.serverStartTimeout)
@@ -109,7 +110,7 @@ class VertexWebServer(
             return
         }
         logger.info("Commencing graceful shutdown. Waiting for active requests to complete")
-        vertx.undeploy(deploymentId).onComplete {
+        vertx.undeploy(deploymentId).onComplete { void, ex ->
             deploymentId = ""
             for (i in 0 until verticles.length()) {
                 verticles[i] = null

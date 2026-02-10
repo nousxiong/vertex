@@ -34,6 +34,6 @@ class BufferConverter(val dataBufferFactory: DefaultDataBufferFactory) {
 
     fun toBuffer(dataBuffer: DataBuffer): Buffer {
         val byteBuf = NettyDataBufferFactory.toByteBuf(dataBuffer)
-        return BufferImpl.buffer(byteBuf)
+        return BufferImpl(byteBuf)
     }
 }

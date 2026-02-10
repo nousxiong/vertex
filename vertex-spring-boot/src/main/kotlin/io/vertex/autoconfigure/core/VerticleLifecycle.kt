@@ -109,9 +109,9 @@ class VerticleLifecycle<T>(private val name: String) {
         val asyncFactory = asyncFactory
         check(asyncFactory != null) { "$name's asyncFactory is null" }
         return VertexVerticle.getOrCreateAsync(name, ctx) {
-            asyncFactory().andThen {
-                if (it.succeeded()) {
-                    addClosers(it.result())
+            asyncFactory().andThen { result, ex ->
+                if (ex == null) {
+                    addClosers(result)
                 }
             }
         }

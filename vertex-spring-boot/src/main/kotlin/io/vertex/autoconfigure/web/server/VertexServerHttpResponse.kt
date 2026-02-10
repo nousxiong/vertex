@@ -1,9 +1,8 @@
 package io.vertex.autoconfigure.web.server
 
+import io.vertex.autoconfigure.common.WriteStreamSubscriber
 import io.vertex.util.BufferConverter
 import io.vertex.util.CookieConverter
-import io.vertex.autoconfigure.common.WriteStreamSubscriber
-import io.vertx.core.AsyncResult
 import io.vertx.core.http.Cookie
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.ext.web.RoutingContext
@@ -39,13 +38,11 @@ class VertexServerHttpResponse(
     override fun writeWith(file: Path, position: Long, count: Long): Mono<Void> {
         val writeCompletion = Mono.create<Void?> { sink: MonoSink<Void?> ->
             logger.debug("Sending file '${file}' pos='${position}' count='${count}'")
-            delegate.sendFile(
-                file.toString(), position, count
-            ) { result: AsyncResult<Void?> ->
-                if (result.succeeded()) {
-                    sink.success()
+            delegate.sendFile(file.toString(), position, count).onComplete { void, throwable ->
+                if (throwable != null) {
+                    sink.error(throwable)
                 } else {
-                    sink.error(result.cause())
+                    sink.success()
                 }
             }
         }
@@ -91,7 +88,7 @@ class VertexServerHttpResponse(
             logger.debug("Setting chunked response")
             delegate.isChunked = true
         }
-        headers.forEach { name: String, values: List<String> ->
+        headers.forEach { (name: String, values: List<String>) ->
             delegate.putHeader(
                 name,
                 values
